@@ -29,7 +29,8 @@
     .player-checkbox { display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
     .player-checkbox:hover { background: #e9ecef; }
     .player-checkbox input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
-    .match-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 0; }
+    .match-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 0; cursor: pointer; transition: transform 0.2s; }
+    .match-card:hover { transform: scale(1.02); }
     .match-header { font-size: 1.05em; font-weight: bold; margin-bottom: 10px; text-align: center; display:flex; justify-content:space-between; gap:8px; align-items:center; }
     .teams { display: flex; justify-content: space-around; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
     .team { text-align: center; flex: 1; min-width: 0; }
@@ -50,6 +51,162 @@
     .badge.win { background:#d4edda; color:#1e7e34; }
     .badge.loss { background:#f8d7da; color:#721c24; }
 
+    /* FULLSCREEN MATCH VIEW */
+    .match-fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh; /* fallback */
+      height: 100dvh; /* dynamic viewport height per mobile */
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+    }
+    .match-fullscreen.active { display: flex; }
+    
+    .fs-header {
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9em;
+    }
+    
+    .fs-match-info {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    
+    .fs-close {
+      background: rgba(255,255,255,0.2);
+      border: 2px solid white;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .fs-playing-area {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+    }
+    
+    .fs-team-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    .fs-team-box:active {
+      transform: scale(0.98);
+    }
+    
+    .fs-team-box.winner {
+      background: linear-gradient(135deg, #d4edda 0%, #a8e6a1 100%);
+      animation: winPulse 1s infinite;
+    }
+    
+    @keyframes winPulse {
+      0%, 100% { box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4); }
+      50% { box-shadow: 0 8px 40px rgba(39, 174, 96, 0.8); }
+    }
+    
+    .fs-team-names {
+      padding: 16px 20px;
+      text-align: center;
+      background: rgba(102, 126, 234, 0.1);
+      border-bottom: 3px solid #667eea;
+    }
+    
+    .fs-team-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
+      line-height: 1.3;
+    }
+    
+    .fs-score-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8em;
+      font-weight: bold;
+      color: #667eea;
+      user-select: none;
+    }
+    
+    .fs-undo-btn {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(231, 76, 60, 0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+    
+    .fs-undo-btn:hover {
+      opacity: 1;
+    }
+    
+    .fs-confirm-area {
+      padding: 16px;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .fs-confirm-btn {
+      padding: 12px 40px;
+      font-size: 1.2em;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      animation: confirmPulse 1.5s infinite;
+    }
+    
+    @keyframes confirmPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .fs-cancel-btn {
+      padding: 12px 40px;
+      font-size: 1.2em;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     @media (max-width: 480px) {
       body { padding: 12px; }
       .container { padding: 16px; }
@@ -60,16 +217,24 @@
       .teams { flex-direction: column; align-items: stretch; }
       .vs { margin: 6px 0; text-align: center; }
       .team { width: 100%; text-align: center; }
+      
+      .fs-score-area { font-size: 5em; }
+      .fs-team-name { font-size: 1.1em; }
+      .fs-undo-btn { width: 40px; height: 40px; font-size: 18px; }
+    }
+    
+    @media (orientation: landscape) {
+      .fs-score-area { font-size: 10em; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚽ Generatore Tornei e.group (v1.1)</h1>
+    <h1>⚽ Generatore Tornei e.group (v2.0)</h1>
 
     <div class="section">
-      <h2>Crea Tornei</h2>
-      <div id="tournamentSelection"></div>
+      <h2>Seleziona Giocatori</h2>
+      <div class="tournament-selection" id="tournamentSelection"></div>
       <div class="grid-2" style="margin-top: 12px;">
         <button id="btnGen" onclick="createSequentialTournaments(4)" title="Genera 4 tornei sequenziali con rotazioni">Genera 4 Tornei</button>
         <button class="success" onclick="createSequentialTournaments(1)" title="Genera un singolo torneo (con logica aggiornata)">Genera 1 Torneo</button>
@@ -77,102 +242,439 @@
     </div>
 
     <div class="section" id="tournamentsSection" style="display:none;">
-      <h2>Partite generate</h2>
+      <h2>Tornei Generati</h2>
       <div id="tournamentsContainer"></div>
     </div>
 
-    <div class="section">
-      <h2>Gestione Giocatori</h2>
+    <div class="section" id="playersSection">
+      <h2>Inserisci Giocatori</h2>
       <div class="input-group">
-        <input type="text" id="playerName" placeholder="Nome giocatore" />
-        <button onclick="addPlayer()">Aggiungi Giocatore</button>
+        <input type="text" id="playerNameInput" placeholder="Nome giocatore" />
+        <button onclick="addPlayer()">Aggiungi</button>
       </div>
       <div class="players-list" id="playersList"></div>
     </div>
   </div>
 
+  <!-- FULLSCREEN MATCH VIEW -->
+  <div class="match-fullscreen" id="matchFullscreen">
+    <div class="fs-header">
+      <div class="fs-match-info" id="fsMatchInfo">Torneo 1 - Partita 1</div>
+      <button class="fs-close" onclick="closeFullscreenMatch()">Chiudi</button>
+    </div>
+    
+    <div class="fs-playing-area">
+      <div class="fs-team-box" id="fsTeam1" onclick="addGoal(1)">
+        <div class="fs-team-names" id="fsTeam1Names">Squadra 1</div>
+        <div class="fs-score-area" id="fsScore1">0</div>
+        <button class="fs-undo-btn" onclick="event.stopPropagation(); removeGoal(1)">−</button>
+      </div>
+      
+      <div class="fs-team-box" id="fsTeam2" onclick="addGoal(2)">
+        <div class="fs-team-names" id="fsTeam2Names">Squadra 2</div>
+        <div class="fs-score-area" id="fsScore2">0</div>
+        <button class="fs-undo-btn" onclick="event.stopPropagation(); removeGoal(2)">−</button>
+      </div>
+    </div>
+    
+    <div class="fs-confirm-area" id="fsConfirmArea" style="display: none;">
+      <button class="fs-confirm-btn" onclick="confirmMatch()">✓ Conferma e Prossima Partita</button>
+      <button class="fs-cancel-btn" onclick="cancelWin()">✗ Annulla</button>
+    </div>
+  </div>
+
   <script>
-    // ===== Stato e persistenza =====
+    // ===== Data & State =====
     let players = ['Marco', 'Alessio', 'Alessandro', 'Andrea', 'Michele', 'Massimiliano', 'Enrico', 'Martin', 'Massimo', 'Karim', 'Vincenzo'];
     players.sort();
+    let currentMatchState = { ti: -1, mi: -1, score1: 0, score2: 0, goalsToWin: 5 };
 
-    function saveData() { document.cookie = `players=${encodeURIComponent(JSON.stringify(players))}; path=/; max-age=31536000`; }
-    function loadData() {
-      const cookies = document.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'players' && value) { try { players = JSON.parse(decodeURIComponent(value)); } catch (e) { console.error('Error loading data', e); } }
+    function saveData() { localStorage.setItem('players', JSON.stringify(players)); }
+    function loadData() { 
+      const saved = localStorage.getItem('players');
+      if (saved) {
+        try {
+          players = JSON.parse(saved);
+        } catch (e) {
+          console.error('Error loading data', e);
+        }
       }
     }
+    
+    function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+    function teamKey(team) { return team.filter(p => p !== 'Pippo').sort().join(' + '); }
+    function pairKey(a, b) { const s = [a, b].sort(); return `${s[0]}|${s[1]}`; }
 
-    // ===== Utility =====
-    function shuffle(array) { const arr = array.slice(); for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
-    const pairKey = (a, b) => [a, b].sort().join('::');
-    const teamKey = (team) => team.join(' & ');
+    // ===== Players =====
+    function addPlayer() {
+      const input = document.getElementById('playerNameInput');
+      const name = input.value.trim();
+      if (!name) { alert('Inserisci un nome!'); return; }
+      if (players.includes(name)) { alert('Giocatore già presente!'); return; }
+      players.push(name);
+      saveData();
+      renderPlayers();
+      renderTournamentSelection();
+      input.value = '';
+    }
 
-    // ===== UI giocatori =====
-    function addPlayer() { const input = document.getElementById('playerName'); const name = input.value.trim(); if (name && !players.includes(name)) { players.push(name); players.sort(); input.value=''; saveData(); renderPlayers(); renderTournamentSelection(); } }
-    function removePlayer(name) { players = players.filter(p => p !== name); saveData(); renderPlayers(); renderTournamentSelection(); }
-    function renderPlayers() { const list = document.getElementById('playersList'); list.innerHTML = players.map(p => `<div class="player-item"><span>${p}</span><button class="danger" onclick="removePlayer('${p.replace(/'/g, "\'")}')">Rimuovi</button></div>`).join(''); }
-    function renderTournamentSelection() { const container = document.getElementById('tournamentSelection'); container.innerHTML = `<div style="grid-column:1/-1;margin-bottom:10px;"><strong>Seleziona i giocatori per i tornei (minimo 4):</strong></div><div class="tournament-selection">${players.map(p => `<label class="player-checkbox"><input type="checkbox" value="${p}" class="player-select" /><span>${p}</span></label>`).join('')}</div>`; }
+    function removePlayer(name) {
+      if (!confirm(`Rimuovere ${name}?`)) return;
+      players = players.filter(p => p !== name);
+      saveData();
+      renderPlayers();
+      renderTournamentSelection();
+    }
 
-    // ===== Generazione coppie e tornei =====
-    function bestPairing(participants, historyPairs, tournamentIndex) {
-      const attempts = Math.min(400, 40 * participants.length); let best = null; let bestScore = Infinity;
-      for (let k = 0; k < attempts; k++) { const arr = shuffle(participants); const tmp = []; for (let i = 0; i < arr.length; i += 2) { tmp.push([arr[i], arr[i+1]]); } let score = 0; for (const [a,b] of tmp) { if (historyPairs.has(pairKey(a,b))) score++; } if (score < bestScore) { bestScore = score; best = tmp; if (score === 0) break; } }
-      const flipBias = (tournamentIndex % 2 === 1) ? 0.7 : 0.3; return best.map(team => (Math.random() < flipBias ? [team[1], team[0]] : team));
+    function renderPlayers() {
+      const container = document.getElementById('playersList');
+      container.innerHTML = players.map(p => `<div class="player-item"><span>${p}</span><button class="danger sm" onclick="removePlayer('${p}')">Rimuovi</button></div>`).join('');
+    }
+
+    function renderTournamentSelection() {
+      const container = document.getElementById('tournamentSelection');
+      container.innerHTML = players.map(p => `<label class="player-checkbox"><input type="checkbox" class="player-select" value="${p}" />${p}</label>`).join('');
+    }
+
+    // ===== Pairing =====
+    function bestPairing(base, historyPairs, tournamentIndex) {
+      const candidates = [];
+      for (let attempt = 0; attempt < 5000; attempt++) {
+        const shuffled = shuffle(base);
+        const pairs = [];
+        for (let i = 0; i < shuffled.length; i += 2) {
+          if (i + 1 < shuffled.length) pairs.push([shuffled[i], shuffled[i + 1]]);
+          else pairs.push([shuffled[i]]);
+        }
+        const newPairs = pairs.filter(([a,b]) => b && !historyPairs.has(pairKey(a,b)));
+        const score = newPairs.length * 1000 - pairs.filter(([a,b]) => b && historyPairs.has(pairKey(a,b))).length * 500;
+        candidates.push({ pairs, score });
+      }
+      candidates.sort((a, b) => b.score - a.score);
+      const best = candidates[0].pairs;
+      const flipBias = (tournamentIndex % 2 === 1) ? 0.7 : 0.3;
+      return best.map(team => (Math.random() < flipBias ? [team[1], team[0]] : team));
     }
 
     function buildMatches(teams) {
-      const numTeams = teams.length; const goalsToWin = (numTeams === 2) ? 10 : 5; const matches = [];
-      if (numTeams === 2) { matches.push({ round: 'Meglio dei 3', team1: teams[0], team2: teams[1], info: `Primo a vincere 2 partite su 3 (ogni partita a ${goalsToWin} goal)`, winner: 0 }); }
-      else if (numTeams === 3) { matches.push({ round: "Girone all'italiana", team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0 }); matches.push({ round: "Girone all'italiana", team1: teams[0], team2: teams[2], info: `Partita a ${goalsToWin} goal`, winner: 0 }); matches.push({ round: "Girone all'italiana", team1: teams[1], team2: teams[2], info: `Partita a ${goalsToWin} goal`, winner: 0 }); }
-      else if (numTeams === 4) { matches.push({ round: 'Semifinale 1', team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0 }); matches.push({ round: 'Semifinale 2', team1: teams[2], team2: teams[3], info: `Partita a ${goalsToWin} goal`, winner: 0 }); matches.push({ round: 'Finale 3°/4° posto', team1: ['Perdente SF1'], team2: ['Perdente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0 }); matches.push({ round: 'FINALE 1°/2° posto', team1: ['Vincente SF1'], team2: ['Vincente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0 }); }
-      else { for (let i = 0; i < teams.length; i++) { for (let j = i + 1; j < teams.length; j++) { matches.push({ round: 'Girone', team1: teams[i], team2: teams[j], info: `Partita a ${goalsToWin} goal`, winner: 0 }); } } }
+      const numTeams = teams.length;
+      const goalsToWin = (numTeams === 2) ? 10 : 5;
+      const matches = [];
+      
+      if (numTeams === 2) {
+        matches.push({ round: 'Meglio dei 3', team1: teams[0], team2: teams[1], info: `Primo a vincere 2 partite su 3 (ogni partita a ${goalsToWin} goal)`, winner: 0, goalsToWin });
+      }
+      else if (numTeams === 3) {
+        matches.push({ round: "Girone all'italiana", team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+        matches.push({ round: "Girone all'italiana", team1: teams[0], team2: teams[2], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+        matches.push({ round: "Girone all'italiana", team1: teams[1], team2: teams[2], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+      }
+      else if (numTeams === 4) {
+        matches.push({ round: 'Semifinale 1', team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+        matches.push({ round: 'Semifinale 2', team1: teams[2], team2: teams[3], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+        matches.push({ round: 'Finale 3°/4° posto', team1: ['Perdente SF1'], team2: ['Perdente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+        matches.push({ round: 'FINALE 1°/2° posto', team1: ['Vincente SF1'], team2: ['Vincente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+      }
+      else {
+        for (let i = 0; i < teams.length; i++) {
+          for (let j = i + 1; j < teams.length; j++) {
+            matches.push({ round: 'Girone', team1: teams[i], team2: teams[j], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin });
+          }
+        }
+      }
       return matches;
     }
 
     function createSequentialTournaments(n = 4) {
-      const selected = Array.from(document.querySelectorAll('.player-select:checked')).map(cb => cb.value); if (selected.length < 4) { alert('Seleziona almeno 4 giocatori!'); return; }
-      const isOdd = (selected.length % 2 !== 0); const base = isOdd ? selected.concat('Pippo') : selected.slice();
+      const selected = Array.from(document.querySelectorAll('.player-select:checked')).map(cb => cb.value);
+      if (selected.length < 4) { alert('Seleziona almeno 4 giocatori!'); return; }
+      
+      const isOdd = (selected.length % 2 !== 0);
+      const base = isOdd ? selected.concat('Pippo') : selected.slice();
 
-      const tournaments = []; const historyPairs = new Set(); let lastPartner = null;
+      const tournaments = [];
+      const historyPairs = new Set();
+      let lastPartner = null;
+      
       for (let t = 0; t < n; t++) {
         let teams = bestPairing(base, historyPairs, t);
         let pippoPartner = null;
-        if (isOdd) { let pippoIdx = teams.findIndex(team => team.includes('Pippo')); if (pippoIdx === -1) { if (teams.length === 0) teams.push(['Pippo']); else teams[0][0] = 'Pippo'; pippoIdx = 0; } pippoPartner = teams[pippoIdx].find(p => p !== 'Pippo'); if (lastPartner && pippoPartner === lastPartner) { let changed = false; for (let j = 0; j < teams.length && !changed; j++) { if (j === pippoIdx) continue; for (let m = 0; m < teams[j].length && !changed; m++) { const candidate = teams[j][m]; if (candidate !== lastPartner) { const ex = pippoPartner; teams[j][m] = ex; const k = teams[pippoIdx].indexOf(ex); teams[pippoIdx][k] = candidate; pippoPartner = candidate; changed = true; } } } } lastPartner = pippoPartner; }
+        
+        if (isOdd) {
+          let pippoIdx = teams.findIndex(team => team.includes('Pippo'));
+          if (pippoIdx === -1) {
+            if (teams.length === 0) teams.push(['Pippo']);
+            else teams[0][0] = 'Pippo';
+            pippoIdx = 0;
+          }
+          pippoPartner = teams[pippoIdx].find(p => p !== 'Pippo');
+          
+          if (lastPartner && pippoPartner === lastPartner) {
+            let changed = false;
+            for (let j = 0; j < teams.length && !changed; j++) {
+              if (j === pippoIdx) continue;
+              for (let m = 0; m < teams[j].length && !changed; m++) {
+                const candidate = teams[j][m];
+                if (candidate !== lastPartner) {
+                  const ex = pippoPartner;
+                  teams[j][m] = ex;
+                  const k = teams[pippoIdx].indexOf(ex);
+                  teams[pippoIdx][k] = candidate;
+                  pippoPartner = candidate;
+                  changed = true;
+                }
+              }
+            }
+          }
+          lastPartner = pippoPartner;
+        }
+        
         for (const [a,b] of teams) historyPairs.add(pairKey(a,b));
-        const matches = buildMatches(teams); matches.forEach(mm => mm.pippoSub = null);
+        const matches = buildMatches(teams);
+        matches.forEach(mm => mm.pippoSub = null);
         const pippoQueue = isOdd ? shuffle(selected.filter(p => p !== pippoPartner)) : [];
         const standings = initStandings(teams);
         tournaments.push({ teams, matches, hasPippo: isOdd, pippoPartner, standings, pippoQueue, _pippoQueueState: null });
       }
-      window.__tournaments = tournaments; window.__selectedPlayers = selected; renderSequentialTournaments(tournaments);
+      
+      window.__tournaments = tournaments;
+      window.__selectedPlayers = selected;
+      renderSequentialTournaments(tournaments);
+      
+      // Sposta la sezione "Inserisci Giocatori" in fondo
+      const container = document.querySelector('.container');
+      const playersSection = document.getElementById('playersSection');
+      if (container && playersSection) {
+        container.appendChild(playersSection);
+      }
     }
 
-    // ===== Risultati & Classifica =====
-    function initStandings(teams) { const table = {}; teams.forEach(team => { table[teamKey(team)] = { team: team.slice(), W: 0, L: 0 }; }); return table; }
-    function resetTournament(ti) { const t = window.__tournaments[ti]; t.matches.forEach(m => m.winner = 0); // NON tocchiamo m.pippoSub
-      // manteniamo anche la coda corrente, così i sostituti non rimbalzano
-      t.standings = initStandings(t.teams); renderSequentialTournaments(window.__tournaments); }
-    function recordResult(ti, mi, winnerSide) { const t = window.__tournaments[ti]; const m = t.matches[mi]; if (!m) return; m.winner = winnerSide; t.standings = initStandings(t.teams); t.matches.forEach(mm => { if (mm.winner === 1 || mm.winner === 2) { const A = teamKey(mm.team1), B = teamKey(mm.team2); if (!(A in t.standings)) t.standings[A] = { team: mm.team1.slice(), W:0, L:0 }; if (!(B in t.standings)) t.standings[B] = { team: mm.team2.slice(), W:0, L:0 }; if (mm.winner === 1) { t.standings[A].W++; t.standings[B].L++; } if (mm.winner === 2) { t.standings[B].W++; t.standings[A].L++; } } }); if (t.teams.length === 3) { if (mi === 0 && (m.winner === 1 || m.winner === 2)) { const loser = (m.winner === 1) ? teamKey(m.team2) : teamKey(m.team1); const involvesLoser = (mm) => teamKey(mm.team1) === loser || teamKey(mm.team2) === loser; if (!involvesLoser(t.matches[1]) && involvesLoser(t.matches[2])) { const tmp = t.matches[1]; t.matches[1] = t.matches[2]; t.matches[2] = tmp; } } } renderSequentialTournaments(window.__tournaments); }
-    function getWinnersList(t) { if (t.matches.some(m => m.round.includes('FINALE'))) { const final = t.matches.find(m => m.round.includes('FINALE')); if (final && (final.winner === 1 || final.winner === 2)) { return [ final.winner === 1 ? teamKey(final.team1) : teamKey(final.team2) ]; } return []; } const arr = Object.values(t.standings).slice().sort((a,b) => (b.W - a.W) || (a.L - b.L)); if (!arr.length) return []; const topW = arr[0].W; return arr.filter(x => x.W === topW).map(x => teamKey(x.team)); }
+    // ===== Standings =====
+    function initStandings(teams) {
+      const table = {};
+      teams.forEach(team => {
+        table[teamKey(team)] = { team: team.slice(), W: 0, L: 0 };
+      });
+      return table;
+    }
+
+    function resetTournament(ti) {
+      const t = window.__tournaments[ti];
+      t.matches.forEach(m => m.winner = 0);
+      t.standings = initStandings(t.teams);
+      renderSequentialTournaments(window.__tournaments);
+    }
+
+    function recordResult(ti, mi, winnerSide) {
+      const t = window.__tournaments[ti];
+      const m = t.matches[mi];
+      if (!m) return;
+      m.winner = winnerSide;
+      
+      t.standings = initStandings(t.teams);
+      t.matches.forEach(mm => {
+        if (mm.winner === 1 || mm.winner === 2) {
+          const A = teamKey(mm.team1), B = teamKey(mm.team2);
+          if (!(A in t.standings)) t.standings[A] = { team: mm.team1.slice(), W:0, L:0 };
+          if (!(B in t.standings)) t.standings[B] = { team: mm.team2.slice(), W:0, L:0 };
+          if (mm.winner === 1) { t.standings[A].W++; t.standings[B].L++; }
+          if (mm.winner === 2) { t.standings[B].W++; t.standings[A].L++; }
+        }
+      });
+      
+      if (t.teams.length === 3) {
+        if (mi === 0 && (m.winner === 1 || m.winner === 2)) {
+          const loser = (m.winner === 1) ? teamKey(m.team2) : teamKey(m.team1);
+          const involvesLoser = (mm) => teamKey(mm.team1) === loser || teamKey(mm.team2) === loser;
+          if (!involvesLoser(t.matches[1]) && involvesLoser(t.matches[2])) {
+            const tmp = t.matches[1];
+            t.matches[1] = t.matches[2];
+            t.matches[2] = tmp;
+          }
+        }
+      }
+      
+      renderSequentialTournaments(window.__tournaments);
+    }
+
+    function getWinnersList(t) {
+      if (t.matches.some(m => m.round.includes('FINALE'))) {
+        const final = t.matches.find(m => m.round.includes('FINALE'));
+        if (final && (final.winner === 1 || final.winner === 2)) {
+          return [ final.winner === 1 ? teamKey(final.team1) : teamKey(final.team2) ];
+        }
+        return [];
+      }
+      const arr = Object.values(t.standings).slice().sort((a,b) => (b.W - a.W) || (a.L - b.L));
+      if (!arr.length) return [];
+      const topW = arr[0].W;
+      return arr.filter(x => x.W === topW).map(x => teamKey(x.team));
+    }
+
+    // ===== Fullscreen Match =====
+    function openFullscreenMatch(ti, mi) {
+      const t = window.__tournaments[ti];
+      const m = t.matches[mi];
+      
+      currentMatchState = {
+        ti: ti,
+        mi: mi,
+        score1: 0,
+        score2: 0,
+        goalsToWin: m.goalsToWin || 5
+      };
+      
+      // Setup UI
+      let team1 = m.team1.slice();
+      let team2 = m.team2.slice();
+      
+      if (t.hasPippo && (team1.includes('Pippo') || team2.includes('Pippo'))) {
+        let pippoSub = m.pippoSub || null;
+        if (!pippoSub) {
+          const playing = team1.concat(team2).filter(p => p !== 'Pippo');
+          const q = t._pippoQueueState || [];
+          let idx = q.findIndex(p => p !== t.pippoPartner && !playing.includes(p));
+          if (idx === -1) idx = q.findIndex(p => p !== t.pippoPartner);
+          if (idx >= 0) {
+            pippoSub = q[idx];
+            q.splice(idx,1);
+            q.push(pippoSub);
+            m.pippoSub = pippoSub;
+          }
+        }
+        team1 = team1.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
+        team2 = team2.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
+      }
+      
+      document.getElementById('fsMatchInfo').textContent = `Torneo ${ti+1} - ${m.round} - Partita ${mi+1}`;
+      document.getElementById('fsTeam1Names').innerHTML = team1.join('<br>');
+      document.getElementById('fsTeam2Names').innerHTML = team2.join('<br>');
+      document.getElementById('fsScore1').textContent = '0';
+      document.getElementById('fsScore2').textContent = '0';
+      document.getElementById('fsConfirmArea').style.display = 'none';
+      document.getElementById('fsTeam1').classList.remove('winner');
+      document.getElementById('fsTeam2').classList.remove('winner');
+      
+      document.getElementById('matchFullscreen').classList.add('active');
+    }
+
+    function closeFullscreenMatch() {
+      document.getElementById('matchFullscreen').classList.remove('active');
+      currentMatchState = { ti: -1, mi: -1, score1: 0, score2: 0, goalsToWin: 5 };
+    }
+
+    function addGoal(team) {
+      if (team === 1) {
+        currentMatchState.score1++;
+        document.getElementById('fsScore1').textContent = currentMatchState.score1;
+      } else {
+        currentMatchState.score2++;
+        document.getElementById('fsScore2').textContent = currentMatchState.score2;
+      }
+      
+      checkWinner();
+    }
+
+    function removeGoal(team) {
+      if (team === 1 && currentMatchState.score1 > 0) {
+        currentMatchState.score1--;
+        document.getElementById('fsScore1').textContent = currentMatchState.score1;
+      } else if (team === 2 && currentMatchState.score2 > 0) {
+        currentMatchState.score2--;
+        document.getElementById('fsScore2').textContent = currentMatchState.score2;
+      }
+      
+      checkWinner();
+    }
+
+    function checkWinner() {
+      const { score1, score2, goalsToWin } = currentMatchState;
+      
+      if (score1 >= goalsToWin || score2 >= goalsToWin) {
+        document.getElementById('fsConfirmArea').style.display = 'flex';
+        if (score1 >= goalsToWin) {
+          document.getElementById('fsTeam1').classList.add('winner');
+          document.getElementById('fsTeam2').classList.remove('winner');
+        } else {
+          document.getElementById('fsTeam2').classList.add('winner');
+          document.getElementById('fsTeam1').classList.remove('winner');
+        }
+      } else {
+        document.getElementById('fsConfirmArea').style.display = 'none';
+        document.getElementById('fsTeam1').classList.remove('winner');
+        document.getElementById('fsTeam2').classList.remove('winner');
+      }
+    }
+
+    function cancelWin() {
+      document.getElementById('fsConfirmArea').style.display = 'none';
+      document.getElementById('fsTeam1').classList.remove('winner');
+      document.getElementById('fsTeam2').classList.remove('winner');
+    }
+
+    function confirmMatch() {
+      const { ti, mi, score1, score2, goalsToWin } = currentMatchState;
+      
+      if (score1 < goalsToWin && score2 < goalsToWin) {
+        alert('Nessuna squadra ha raggiunto i goal necessari!');
+        return;
+      }
+      
+      const winner = score1 >= goalsToWin ? 1 : 2;
+      recordResult(ti, mi, winner);
+      
+      // Check if there's a next match
+      const t = window.__tournaments[ti];
+      const nextMatchIndex = mi + 1;
+      
+      closeFullscreenMatch();
+      
+      if (nextMatchIndex < t.matches.length) {
+        // Auto-open next match after a short delay
+        setTimeout(() => {
+          openFullscreenMatch(ti, nextMatchIndex);
+        }, 500);
+      }
+    }
 
     // ===== Render =====
     function renderSequentialTournaments(tournaments) {
-      const section = document.getElementById('tournamentsSection'); const container = document.getElementById('tournamentsContainer'); container.innerHTML = '';
+      const section = document.getElementById('tournamentsSection');
+      const container = document.getElementById('tournamentsContainer');
+      container.innerHTML = '';
+      
       tournaments.forEach((t, ti) => {
-        if (t.hasPippo && !t._pippoQueueState) { t._pippoQueueState = t.pippoQueue ? t.pippoQueue.slice() : []; }
+        if (t.hasPippo && !t._pippoQueueState) {
+          t._pippoQueueState = t.pippoQueue ? t.pippoQueue.slice() : [];
+        }
+        
         const winners = getWinnersList(t);
         let headerRight = `<div style="display:flex; gap:8px; align-items:center;">${winners.length ? `<span class=\"badge\">Vincitore: ${winners.join(', ')}</span>` : ''}<button class=\"ghost sm\" onclick=\"resetTournament(${ti})\">Reset ris.​</button></div>`;
         let html = `<div class="tournament-title">🏆 Torneo ${ti+1} ${headerRight}</div>`;
-        if (t.hasPippo) { html += `<div class="alert info"><strong>⚠️ Numero dispari di giocatori!</strong><br>È presente il giocatore virtuale <strong>Pippo</strong>.<br>Il <strong>partner di Pippo varia</strong> torneo per torneo (qui: <strong>${t.pippoPartner || '—'}</strong>).<br>La sostituzione di Pippo ruota tra gli altri giocatori nei vari match e tornei, e resta fissa una volta assegnata.</div>`; }
-        const standingsRows = Object.values(t.standings).sort((a,b) => (b.W - a.W) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team))).map(row => `<tr><td>${teamKey(row.team)}</td><td><span class=\"badge win\">${row.W}</span></td><td><span class=\"badge loss\">${row.L}</span></td></tr>`).join('');
+        
+        if (t.hasPippo) {
+          html += `<div class="alert info"><strong>⚠️ Numero dispari di giocatori!</strong><br>È presente il giocatore virtuale <strong>Pippo</strong>.<br>Il <strong>partner di Pippo varia</strong> torneo per torneo (qui: <strong>${t.pippoPartner || '—'}</strong>).<br>La sostituzione di Pippo ruota tra gli altri giocatori nei vari match e tornei, e resta fissa una volta assegnata.</div>`;
+        }
+        
+        const standingsRows = Object.values(t.standings)
+          .sort((a,b) => (b.W - a.W) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)))
+          .map(row => `<tr><td>${teamKey(row.team)}</td><td><span class=\"badge win\">${row.W}</span></td><td><span class=\"badge loss\">${row.L}</span></td></tr>`)
+          .join('');
         html += `<div class="standings"><table><thead><tr><th>Coppia</th><th>V</th><th>P</th></tr></thead><tbody>${standingsRows}</tbody></table></div>`;
-        let currentRound = ''; let partHtml = '';
+        
+        let currentRound = '';
+        let partHtml = '';
+        
         t.matches.forEach((match, mi) => {
-          if (match.round !== currentRound) { if (currentRound !== '') partHtml += '</div>'; partHtml += `<div class="round-title">${match.round}</div><div>`; currentRound = match.round; }
-          let team1 = match.team1.slice(); let team2 = match.team2.slice();
+          if (match.round !== currentRound) {
+            if (currentRound !== '') partHtml += '</div>';
+            partHtml += `<div class="round-title">${match.round}</div><div>`;
+            currentRound = match.round;
+          }
+          
+          let team1 = match.team1.slice();
+          let team2 = match.team2.slice();
+          
           if (t.hasPippo && (team1.includes('Pippo') || team2.includes('Pippo'))) {
             let pippoSub = match.pippoSub || null;
             if (!pippoSub) {
@@ -180,21 +682,53 @@
               const q = t._pippoQueueState || [];
               let idx = q.findIndex(p => p !== t.pippoPartner && !playing.includes(p));
               if (idx === -1) idx = q.findIndex(p => p !== t.pippoPartner);
-              if (idx >= 0) { pippoSub = q[idx]; q.splice(idx,1); q.push(pippoSub); match.pippoSub = pippoSub; }
+              if (idx >= 0) {
+                pippoSub = q[idx];
+                q.splice(idx,1);
+                q.push(pippoSub);
+                match.pippoSub = pippoSub;
+              }
             }
             team1 = team1.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
             team2 = team2.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
           }
-          const status = match.winner === 1 ? `✅ Vince: ${teamKey(match.team1)}` : match.winner === 2 ? `✅ Vince: ${teamKey(match.team2)}` : 'Seleziona il vincitore';
-          partHtml += `<div class="match-card"><div class="match-header"><span>Partita ${mi + 1}</span><span class="badge">${status}</span></div><div class="teams"><div class="team"><div class="team-name">${team1.join('<br>')}</div></div><div class="vs">VS</div><div class="team"><div class="team-name">${team2.join('<br>')}</div></div></div><div class="match-info">${match.info}</div><div style=\"display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap;\"><button class=\"sm\" onclick=\"recordResult(${ti}, ${mi}, 1)\">Vince Team 1</button><button class=\"sm\" onclick=\"recordResult(${ti}, ${mi}, 2)\">Vince Team 2</button><button class=\"ghost sm\" onclick=\"recordResult(${ti}, ${mi}, 0)\">Annulla</button></div>${match.pippoSub ? `<div class=\"pippo-note\">🔄 In questa partita Pippo è sostituito da <strong>${match.pippoSub}</strong></div>` : ''}</div>`;
+          
+          const status = match.winner === 1 ? `✅ Vince: ${teamKey(match.team1)}` : match.winner === 2 ? `✅ Vince: ${teamKey(match.team2)}` : 'Da giocare';
+          
+          partHtml += `<div class="match-card" onclick="openFullscreenMatch(${ti}, ${mi})">
+            <div class="match-header">
+              <span>Partita ${mi + 1}</span>
+              <span class="badge">${status}</span>
+            </div>
+            <div class="teams">
+              <div class="team">
+                <div class="team-name">${team1.join('<br>')}</div>
+              </div>
+              <div class="vs">VS</div>
+              <div class="team">
+                <div class="team-name">${team2.join('<br>')}</div>
+              </div>
+            </div>
+            <div class="match-info">${match.info}</div>
+            ${match.pippoSub ? `<div class=\"pippo-note\">🔄 In questa partita Pippo è sostituito da <strong>${match.pippoSub}</strong></div>` : ''}
+            <div style="margin-top: 10px; text-align: center; font-size: 0.9em; opacity: 0.8;">
+              👆 Tap per aprire schermata di gioco
+            </div>
+          </div>`;
         });
-        partHtml += '</div>'; html += partHtml; container.insertAdjacentHTML('beforeend', html);
+        
+        partHtml += '</div>';
+        html += partHtml;
+        container.insertAdjacentHTML('beforeend', html);
       });
+      
       section.style.display = 'block';
     }
 
     // ===== Init =====
-    loadData(); renderPlayers(); renderTournamentSelection();
+    loadData();
+    renderPlayers();
+    renderTournamentSelection();
   </script>
 </body>
 </html>
