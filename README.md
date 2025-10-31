@@ -4,7 +4,7 @@
 
 A web application to organize and manage foosball tournaments with a touch-optimized interface for mobile devices.
 
-![Version](https://img.shields.io/badge/version-3.0-blue)
+![Version](https://img.shields.io/badge/version-3.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎯 Features
