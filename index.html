@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Torneo Calcio Balilla</title>
+  <title>⚽ Generatore Tornei (v3.0)</title>
   
   <!-- PWA / Home Screen Icons -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
@@ -239,7 +239,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚽ Generatore Tornei (v3.0)</h1>
+    <h1>⚽ Generatore Tornei (v3.1)</h1>
 
     <div class="section">
       <h2>Seleziona Giocatori</h2>
@@ -318,7 +318,7 @@
     }
     
     function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-    function teamKey(team) { return team.filter(p => p !== 'Pippo').sort().join(' + '); }
+    function teamKey(team) { return team.filter(p => p !== 'Pippo').join(' + '); }
     function pairKey(a, b) { const s = [a, b].sort(); return `${s[0]}|${s[1]}`; }
 
     // ===== Players =====
