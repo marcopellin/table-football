@@ -2,13 +2,14 @@
 
 A web application to organize and manage foosball tournaments with a touch-optimized interface for mobile devices.
 
-![Version](https://img.shields.io/badge/version-4.0-blue)
+![Version](https://img.shields.io/badge/version-5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎯 Features
 
 - **Automatic tournament generation**: Create 1 or 4 sequential tournaments with intelligent team rotation
 - **Fullscreen touch interface**: Landscape-optimized mode for scoring goals with direct taps
+- **Live standings during match**: Real-time tournament standings updated with current match score in the bottom half of the screen
 - **Red vs Blue color system**: Visual team identification with automatic side switching
 - **Goal difference tracking**: Complete standings with goals for, goals against, and goal difference
 - **Odd player management**: "Pippo" system for tournaments with an odd number of players
@@ -40,6 +41,10 @@ Two large color-coded squares (red vs blue) to score goals with a tap - perfect 
 
 ## 🎮 Fullscreen Mode
 
+### Layout:
+- **Top half (50%)**: Color-coded team squares for scoring
+- **Bottom half (50%)**: Live tournament standings with current match score included
+
 ### How it works:
 - **Red team (left)**: Tap the red square to add a goal
 - **Blue team (right)**: Tap the blue square to add a goal
@@ -48,6 +53,7 @@ Two large color-coded squares (red vs blue) to score goals with a tap - perfect 
 - **Mandatory confirmation**: Prevents accidental errors
 - **Auto-advance**: To the next match after confirmation
 - **Automatic side switching**: Teams that play consecutively automatically switch sides
+- **Live standings update**: Every goal scored immediately updates the standings with current match included
 
 ### Color System:
 - 🔴 **Red team (left side)**: Defense position
@@ -55,10 +61,17 @@ Two large color-coded squares (red vs blue) to score goals with a tap - perfect 
 - Teams automatically switch sides when playing consecutive matches
 - Manual swap available via "🔄 Inverti Colori" button
 
+### Live Standings:
+- 🎯 Current match teams highlighted in yellow
+- 📊 Real-time calculation includes current match score
+- 🏆 Tournament winner highlighted when all matches complete
+- Automatic position updates as goals are scored
+
 ### Recommended:
 - 📱 Use your phone in **landscape mode**
 - 🔊 Volume up for tournament atmosphere
 - 👥 Teams stay on their chosen color throughout the tournament
+- 📊 Monitor standings live as you play
 
 ## 🏆 Tournament Formats
 
@@ -174,6 +187,7 @@ createSequentialTournaments(4); // Change the number here
 
 ## 📝 Roadmap
 
+- [ ] Improve 5+ matches
 - [ ] Multi-language support (i18n)
 - [ ] Historical statistics per player
 - [ ] Export results to PDF/CSV

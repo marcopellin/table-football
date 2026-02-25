@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚽ Generatore Tornei (v4.0)</title>
+  <title>⚽ Generatore Tornei (v5.0)</title>
   
   <!-- PWA / Home Screen Icons -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
@@ -120,6 +120,56 @@
       display: flex;
       gap: 10px;
       padding: 10px;
+      max-height: 50vh;
+    }
+    
+    .fs-standings-area {
+      flex: 1;
+      padding: 15px;
+      background: rgba(255,255,255,0.95);
+      overflow-y: auto;
+      border-top: 3px solid rgba(255,255,255,0.3);
+    }
+    
+    .fs-standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .fs-standings-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 8px;
+      font-size: 0.9em;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    .fs-standings-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9em;
+    }
+    
+    .fs-standings-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .fs-standings-table tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+    
+    .fs-standings-table .highlight-winner {
+      background: #d4edda !important;
+      font-weight: bold;
+    }
+    
+    .fs-standings-table .current-match {
+      background: #fff3cd !important;
     }
     
     .fs-team-box {
@@ -290,7 +340,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚽ Generatore Tornei (v4.0)</h1>
+    <h1>⚽ Generatore Tornei (v5.0)</h1>
 
     <div class="section">
       <h2>Seleziona Giocatori</h2>
@@ -338,6 +388,24 @@
         <div class="fs-score-area" id="fsScore2">0</div>
         <button class="fs-undo-btn" onclick="event.stopPropagation(); removeGoal(2)">−</button>
       </div>
+    </div>
+    
+    <div class="fs-standings-area" id="fsStandingsArea">
+      <table class="fs-standings-table" id="fsStandingsTable">
+        <thead>
+          <tr>
+            <th>Pos</th>
+            <th>Coppia</th>
+            <th>V</th>
+            <th>P</th>
+            <th>GF</th>
+            <th>GS</th>
+            <th>DR</th>
+          </tr>
+        </thead>
+        <tbody id="fsStandingsBody">
+        </tbody>
+      </table>
     </div>
     
     <div class="fs-confirm-area" id="fsConfirmArea" style="display: none;">
@@ -910,6 +978,90 @@
       
       team1Box.classList.add('red');
       team2Box.classList.add('blue');
+      
+      // Aggiorna la classifica
+      updateFullscreenStandings(ti, mi);
+    }
+    
+    function updateFullscreenStandings(ti, mi) {
+      const t = window.__tournaments[ti];
+      const m = t.matches[mi];
+      const tbody = document.getElementById('fsStandingsBody');
+      
+      // Ottieni le squadre del match corrente
+      const currentTeam1Key = teamKey(m.team1);
+      const currentTeam2Key = teamKey(m.team2);
+      
+      // Crea una copia della classifica per calcolare i punteggi temporanei
+      const tempStandings = {};
+      Object.keys(t.standings).forEach(key => {
+        tempStandings[key] = { ...t.standings[key] };
+      });
+      
+      // Aggiungi i punteggi del match corrente alla classifica temporanea
+      if (currentMatchState.score1 > 0 || currentMatchState.score2 > 0) {
+        const { score1, score2, swappedColors } = currentMatchState;
+        
+        // Determina i punteggi reali considerando lo swap
+        let realScore1, realScore2;
+        if (swappedColors) {
+          realScore1 = score2;
+          realScore2 = score1;
+        } else {
+          realScore1 = score1;
+          realScore2 = score2;
+        }
+        
+        // Aggiungi goal fatti e subiti temporanei
+        if (tempStandings[currentTeam1Key]) {
+          tempStandings[currentTeam1Key].GF += realScore1;
+          tempStandings[currentTeam1Key].GS += realScore2;
+          tempStandings[currentTeam1Key].GD = tempStandings[currentTeam1Key].GF - tempStandings[currentTeam1Key].GS;
+        }
+        
+        if (tempStandings[currentTeam2Key]) {
+          tempStandings[currentTeam2Key].GF += realScore2;
+          tempStandings[currentTeam2Key].GS += realScore1;
+          tempStandings[currentTeam2Key].GD = tempStandings[currentTeam2Key].GF - tempStandings[currentTeam2Key].GS;
+        }
+        
+        // Aggiungi vittoria/sconfitta temporanea se uno sta vincendo
+        if (realScore1 > realScore2 && tempStandings[currentTeam1Key]) {
+          tempStandings[currentTeam1Key].W++;
+          if (tempStandings[currentTeam2Key]) tempStandings[currentTeam2Key].L++;
+        } else if (realScore2 > realScore1 && tempStandings[currentTeam2Key]) {
+          tempStandings[currentTeam2Key].W++;
+          if (tempStandings[currentTeam1Key]) tempStandings[currentTeam1Key].L++;
+        }
+      }
+      
+      // Ordina la classifica temporanea
+      const sortedStandings = Object.values(tempStandings)
+        .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)));
+      
+      // Genera le righe
+      let html = '';
+      sortedStandings.forEach((row, idx) => {
+        const tKey = teamKey(row.team);
+        const isCurrentMatch = (tKey === currentTeam1Key || tKey === currentTeam2Key);
+        const isLeader = idx === 0 && t.matches.every(mm => mm.winner !== 0);
+        
+        let rowClass = '';
+        if (isLeader) rowClass = 'highlight-winner';
+        else if (isCurrentMatch) rowClass = 'current-match';
+        
+        html += `<tr class="${rowClass}">
+          <td>${idx + 1}${isLeader ? ' 🏆' : ''}</td>
+          <td style="font-weight: ${isCurrentMatch ? 'bold' : 'normal'};">${tKey}${isCurrentMatch ? ' 🎯' : ''}</td>
+          <td>${row.W}</td>
+          <td>${row.L}</td>
+          <td>${row.GF}</td>
+          <td>${row.GS}</td>
+          <td style="font-weight: bold;">${row.GD > 0 ? '+' : ''}${row.GD}</td>
+        </tr>`;
+      });
+      
+      tbody.innerHTML = html;
     }
 
     function closeFullscreenMatch() {
@@ -960,6 +1112,9 @@
         document.getElementById('fsScore2').textContent = currentMatchState.score2;
       }
       
+      // Aggiorna la classifica con i punteggi correnti
+      updateFullscreenStandings(currentMatchState.ti, currentMatchState.mi);
+      
       checkWinner();
     }
 
@@ -971,6 +1126,9 @@
         currentMatchState.score2--;
         document.getElementById('fsScore2').textContent = currentMatchState.score2;
       }
+      
+      // Aggiorna la classifica con i punteggi correnti
+      updateFullscreenStandings(currentMatchState.ti, currentMatchState.mi);
       
       checkWinner();
     }
@@ -1158,8 +1316,9 @@
     }
     
     function showTournamentVictory(ti, winnerName) {
-      // Nascondi i quadrati di gioco e mostra messaggio di vittoria
+      // Nascondi i quadrati di gioco, standings e mostra messaggio di vittoria
       document.querySelector('.fs-playing-area').style.display = 'none';
+      document.getElementById('fsStandingsArea').style.display = 'none';
       document.getElementById('fsConfirmArea').style.display = 'none';
       
       const victoryMessage = document.createElement('div');
@@ -1195,6 +1354,7 @@
         victoryMessage.remove();
       }
       document.querySelector('.fs-playing-area').style.display = 'flex';
+      document.getElementById('fsStandingsArea').style.display = 'flex';
       closeFullscreenMatch();
     }
     
@@ -1204,8 +1364,9 @@
       const winnerTeam = winner === 1 ? m.team1 : m.team2;
       const winnerName = teamKey(winnerTeam);
       
-      // Nascondi i quadrati di gioco e mostra messaggio di vittoria
+      // Nascondi i quadrati di gioco, standings e mostra messaggio di vittoria
       document.querySelector('.fs-playing-area').style.display = 'none';
+      document.getElementById('fsStandingsArea').style.display = 'none';
       document.getElementById('fsConfirmArea').style.display = 'none';
       
       const victoryMessage = document.createElement('div');
@@ -1241,6 +1402,7 @@
         victoryMessage.remove();
       }
       document.querySelector('.fs-playing-area').style.display = 'flex';
+      document.getElementById('fsStandingsArea').style.display = 'flex';
       closeFullscreenMatch();
       
       // Check if there's a next match in other tournaments
