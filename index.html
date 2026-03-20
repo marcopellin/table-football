@@ -710,6 +710,19 @@
     }
 
     // ===== Standings =====
+    function headToHead(a, b, matches) {
+      const keyA = teamKey(a.team);
+      const keyB = teamKey(b.team);
+      const m = matches.find(mm =>
+        (teamKey(mm.team1) === keyA && teamKey(mm.team2) === keyB) ||
+        (teamKey(mm.team1) === keyB && teamKey(mm.team2) === keyA)
+      );
+      if (!m || m.winner === 0) return 0;
+      const aIsTeam1 = teamKey(m.team1) === keyA;
+      if ((aIsTeam1 && m.winner === 1) || (!aIsTeam1 && m.winner === 2)) return -1; // a ha vinto lo scontro diretto
+      return 1; // b ha vinto lo scontro diretto
+    }
+
     function initStandings(teams) {
       const table = {};
       teams.forEach(team => {
@@ -845,9 +858,9 @@
         return [];
       }
       
-      // Ordina per: vittorie (desc), differenza reti (desc), sconfitte (asc)
-      const arr = Object.values(t.standings).slice().sort((a,b) => 
-        (b.W - a.W) || (b.GD - a.GD) || (a.L - b.L)
+      // Ordina per: vittorie (desc), differenza reti (desc), scontro diretto, sconfitte (asc)
+      const arr = Object.values(t.standings).slice().sort((a,b) =>
+        (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L)
       );
       
       if (!arr.length) return [];
@@ -1037,7 +1050,7 @@
       
       // Ordina la classifica temporanea
       const sortedStandings = Object.values(tempStandings)
-        .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)));
+        .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)));
       
       // Genera le righe
       let html = '';
@@ -1436,7 +1449,7 @@
         }
         
         const standingsRows = Object.values(t.standings)
-          .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)))
+          .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)))
           .map((row, idx) => {
             const isWinner = idx === 0 && t.matches.every(m => m.winner !== 0) && (t.teams.length >= 3);
             const rowClass = isWinner ? ' style="background: #d4edda; font-weight: bold;"' : '';
