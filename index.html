@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚽ Generatore Tornei (v5.0)</title>
-  
-  <!-- PWA / Home Screen Icons -->
+  <title>⚽ Generatore Tornei (v5.1)</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Torneo ⚽">
   <meta name="theme-color" content="#667eea">
-  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -59,303 +56,62 @@
     .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; background:#f1f3f5; color:#333; }
     .badge.win { background:#d4edda; color:#1e7e34; }
     .badge.loss { background:#f8d7da; color:#721c24; }
-
-    /* FULLSCREEN MATCH VIEW */
-    .match-fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh; /* fallback */
-      height: 100dvh; /* dynamic viewport height per mobile */
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
-    }
+    .match-fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 9999; display: none; flex-direction: column; }
     .match-fullscreen.active { display: flex; }
-    
-    .fs-header {
-      padding: 15px;
-      background: rgba(0,0,0,0.3);
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.9em;
-    }
-    
-    .fs-match-info {
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-    
-    .fs-close {
-      background: rgba(255,255,255,0.2);
-      border: 2px solid white;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    
-    .fs-swap {
-      background: rgba(255,255,255,0.2);
-      border: 2px solid white;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-    
-    .fs-swap:hover, .fs-close:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    
-    .fs-playing-area {
-      flex: 1;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      max-height: 50vh;
-    }
-    
-    .fs-standings-area {
-      flex: 1;
-      padding: 15px;
-      background: rgba(255,255,255,0.95);
-      overflow-y: auto;
-      border-top: 3px solid rgba(255,255,255,0.3);
-    }
-    
-    .fs-standings-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .fs-standings-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 10px 8px;
-      font-size: 0.9em;
-      text-align: left;
-      font-weight: 600;
-    }
-    
-    .fs-standings-table td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 0.9em;
-    }
-    
-    .fs-standings-table tr:last-child td {
-      border-bottom: none;
-    }
-    
-    .fs-standings-table tr:nth-child(even) {
-      background: #f8f9fa;
-    }
-    
-    .fs-standings-table .highlight-winner {
-      background: #d4edda !important;
-      font-weight: bold;
-    }
-    
-    .fs-standings-table .current-match {
-      background: #fff3cd !important;
-    }
-    
-    .fs-team-box {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: rgba(255,255,255,0.95);
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-      position: relative;
-    }
-    
-    .fs-team-box.red {
-      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-      border: 4px solid #d32f2f;
-    }
-    
-    .fs-team-box.blue {
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-      border: 4px solid #1976d2;
-    }
-    
-    .fs-team-box:active {
-      transform: scale(0.98);
-    }
-    
-    .fs-team-box.winner {
-      background: linear-gradient(135deg, #d4edda 0%, #a8e6a1 100%);
-      animation: winPulse 1s infinite;
-    }
-    
-    @keyframes winPulse {
-      0%, 100% { box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4); }
-      50% { box-shadow: 0 8px 40px rgba(39, 174, 96, 0.8); }
-    }
-    
-    .fs-team-names {
-      padding: 16px 20px;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.05);
-      border-bottom: 3px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .red .fs-team-names {
-      background: rgba(211, 47, 47, 0.1);
-      border-bottom-color: #d32f2f;
-    }
-    
-    .blue .fs-team-names {
-      background: rgba(25, 118, 210, 0.1);
-      border-bottom-color: #1976d2;
-    }
-    
-    .fs-team-name {
-      font-size: 1.3em;
-      font-weight: bold;
-      color: #333;
-      line-height: 1.3;
-    }
-    
-    .red .fs-team-name {
-      color: #b71c1c;
-    }
-    
-    .blue .fs-team-name {
-      color: #0d47a1;
-    }
-    
-    .fs-score-area {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8em;
-      font-weight: bold;
-      color: #999;
-      user-select: none;
-    }
-    
-    .red .fs-score-area {
-      color: #d32f2f;
-    }
-    
-    .blue .fs-score-area {
-      color: #1976d2;
-    }
-    
-    .fs-undo-btn {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      background: rgba(231, 76, 60, 0.8);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      font-size: 20px;
-      cursor: pointer;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-      z-index: 10;
-    }
-    
-    .fs-undo-btn:hover {
-      opacity: 1;
-    }
-    
-    .fs-confirm-area {
-      padding: 16px;
-      background: rgba(0,0,0,0.3);
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-    
-    .fs-confirm-btn {
-      padding: 12px 40px;
-      font-size: 1.2em;
-      background: #27ae60;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      animation: confirmPulse 1.5s infinite;
-    }
-    
-    @keyframes confirmPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    
-    .fs-cancel-btn {
-      padding: 12px 40px;
-      font-size: 1.2em;
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 2px solid white;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    @media (max-width: 480px) {
-      body { padding: 12px; }
-      .container { padding: 16px; }
-      .input-group { gap: 8px; }
-      .players-list { grid-template-columns: 1fr; gap: 8px; }
-      .tournament-selection { grid-template-columns: 1fr; gap: 8px; }
-      .match-card { padding: 14px; }
-      .teams { flex-direction: column; align-items: stretch; }
-      .vs { margin: 6px 0; text-align: center; }
-      .team { width: 100%; text-align: center; }
-      
-      .fs-score-area { font-size: 5em; }
-      .fs-team-name { font-size: 1.1em; }
-      .fs-undo-btn { width: 40px; height: 40px; font-size: 18px; }
-    }
-    
-    @media (orientation: landscape) {
-      .fs-score-area { font-size: 10em; }
-    }
+    .fs-header { padding: 15px; background: rgba(0,0,0,0.3); color: white; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+    .fs-match-info { font-weight: bold; font-size: 1.1em; }
+    .fs-close { background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+    .fs-swap { background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-right: 10px; }
+    .fs-swap:hover, .fs-close:hover { background: rgba(255,255,255,0.3); }
+    .fs-playing-area { flex: 1; display: flex; gap: 10px; padding: 10px; max-height: 50vh; }
+    .fs-standings-area { flex: 1; padding: 15px; background: rgba(255,255,255,0.95); overflow-y: auto; border-top: 3px solid rgba(255,255,255,0.3); }
+    .fs-standings-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .fs-standings-table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 8px; font-size: 0.9em; text-align: left; font-weight: 600; }
+    .fs-standings-table td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; font-size: 0.9em; }
+    .fs-standings-table tr:last-child td { border-bottom: none; }
+    .fs-standings-table tr:nth-child(even) { background: #f8f9fa; }
+    .fs-standings-table .highlight-winner { background: #d4edda !important; font-weight: bold; }
+    .fs-standings-table .current-match { background: #fff3cd !important; }
+    .fs-team-box { flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.95); border-radius: 20px; overflow: hidden; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 30px rgba(0,0,0,0.3); position: relative; }
+    .fs-team-box.red { background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border: 4px solid #d32f2f; }
+    .fs-team-box.blue { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 4px solid #1976d2; }
+    .fs-team-box:active { transform: scale(0.98); }
+    .fs-team-box.winner { background: linear-gradient(135deg, #d4edda 0%, #a8e6a1 100%); animation: winPulse 1s infinite; }
+    @keyframes winPulse { 0%, 100% { box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4); } 50% { box-shadow: 0 8px 40px rgba(39, 174, 96, 0.8); } }
+    .fs-team-names { padding: 16px 20px; text-align: center; background: rgba(0,0,0,0.05); border-bottom: 3px solid rgba(0,0,0,0.1); }
+    .red .fs-team-names { background: rgba(211,47,47,0.1); border-bottom-color: #d32f2f; }
+    .blue .fs-team-names { background: rgba(25,118,210,0.1); border-bottom-color: #1976d2; }
+    .fs-team-name { font-size: 1.3em; font-weight: bold; color: #333; line-height: 1.3; }
+    .red .fs-team-name { color: #b71c1c; }
+    .blue .fs-team-name { color: #0d47a1; }
+    .fs-score-area { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 8em; font-weight: bold; color: #999; user-select: none; }
+    .red .fs-score-area { color: #d32f2f; }
+    .blue .fs-score-area { color: #1976d2; }
+    .fs-undo-btn { position: absolute; bottom: 15px; right: 15px; background: rgba(231,76,60,0.8); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; z-index: 10; }
+    .fs-undo-btn:hover { opacity: 1; }
+    .fs-confirm-area { padding: 16px; background: rgba(0,0,0,0.3); display: flex; justify-content: center; gap: 15px; }
+    .fs-confirm-btn { padding: 12px 40px; font-size: 1.2em; background: #27ae60; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; animation: confirmPulse 1.5s infinite; }
+    @keyframes confirmPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .fs-cancel-btn { padding: 12px 40px; font-size: 1.2em; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 12px; cursor: pointer; font-weight: bold; }
+    @media (max-width: 480px) { body { padding: 12px; } .container { padding: 16px; } .input-group { gap: 8px; } .players-list { grid-template-columns: 1fr; gap: 8px; } .tournament-selection { grid-template-columns: 1fr; gap: 8px; } .match-card { padding: 14px; } .teams { flex-direction: column; align-items: stretch; } .vs { margin: 6px 0; text-align: center; } .team { width: 100%; text-align: center; } .fs-score-area { font-size: 5em; } .fs-team-name { font-size: 1.1em; } .fs-undo-btn { width: 40px; height: 40px; font-size: 18px; } }
+    @media (orientation: landscape) { .fs-score-area { font-size: 10em; } }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚽ Generatore Tornei (v5.0)</h1>
-
+    <h1>⚽ Generatore Tornei (v5.1)</h1>
     <div class="section">
       <h2>Seleziona Giocatori</h2>
       <div class="tournament-selection" id="tournamentSelection"></div>
       <div class="grid-2" style="margin-top: 12px;">
-        <button id="btnGen" onclick="createSequentialTournaments(4)" title="Genera 4 tornei sequenziali con rotazioni">Genera 4 Tornei</button>
-        <button class="success" onclick="createSequentialTournaments(1)" title="Genera un singolo torneo (con logica aggiornata)">Genera 1 Torneo</button>
+        <button id="btnGen" onclick="createSequentialTournaments(4)">Genera 4 Tornei</button>
+        <button class="success" onclick="createSequentialTournaments(1)">Genera 1 Torneo</button>
       </div>
     </div>
-
     <div class="section" id="tournamentsSection" style="display:none;">
       <h2>Tornei Generati</h2>
       <div id="tournamentsContainer"></div>
     </div>
-
     <div class="section" id="playersSection">
       <h2>Inserisci Giocatori</h2>
       <div class="input-group">
@@ -365,8 +121,6 @@
       <div class="players-list" id="playersList"></div>
     </div>
   </div>
-
-  <!-- FULLSCREEN MATCH VIEW -->
   <div class="match-fullscreen" id="matchFullscreen">
     <div class="fs-header">
       <div class="fs-match-info" id="fsMatchInfo">Torneo 1 - Partita 1</div>
@@ -375,1178 +129,95 @@
         <button class="fs-close" onclick="closeFullscreenMatch()">Chiudi</button>
       </div>
     </div>
-    
     <div class="fs-playing-area">
       <div class="fs-team-box" id="fsTeam1" onclick="addGoal(1)">
         <div class="fs-team-names" id="fsTeam1Names">Squadra 1</div>
         <div class="fs-score-area" id="fsScore1">0</div>
         <button class="fs-undo-btn" onclick="event.stopPropagation(); removeGoal(1)">−</button>
       </div>
-      
       <div class="fs-team-box" id="fsTeam2" onclick="addGoal(2)">
         <div class="fs-team-names" id="fsTeam2Names">Squadra 2</div>
         <div class="fs-score-area" id="fsScore2">0</div>
         <button class="fs-undo-btn" onclick="event.stopPropagation(); removeGoal(2)">−</button>
       </div>
     </div>
-    
     <div class="fs-standings-area" id="fsStandingsArea">
       <table class="fs-standings-table" id="fsStandingsTable">
-        <thead>
-          <tr>
-            <th>Pos</th>
-            <th>Coppia</th>
-            <th>V</th>
-            <th>P</th>
-            <th>GF</th>
-            <th>GS</th>
-            <th>DR</th>
-          </tr>
-        </thead>
-        <tbody id="fsStandingsBody">
-        </tbody>
+        <thead><tr><th>Pos</th><th>Coppia</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th></tr></thead>
+        <tbody id="fsStandingsBody"></tbody>
       </table>
     </div>
-    
-    <div class="fs-confirm-area" id="fsConfirmArea" style="display: none;">
+    <div class="fs-confirm-area" id="fsConfirmArea" style="display:none;">
       <button class="fs-confirm-btn" onclick="confirmMatch()">✓ Conferma e Prossima Partita</button>
       <button class="fs-cancel-btn" onclick="cancelWin()">✗ Annulla</button>
     </div>
   </div>
-
   <script>
-    // ===== Data & State =====
-    let players = ['Marco', 'Alessio', 'Alessandro', 'Andrea', 'Michele', 'Enrico', 'Martin', 'Massimo', 'Karim', 'Vincenzo'];
+    let players = ['Marco','Alessio','Alessandro','Andrea','Michele','Enrico','Martin','Massimo','Karim','Vincenzo'];
     players.sort();
-    let currentMatchState = { 
-      ti: -1, 
-      mi: -1, 
-      score1: 0, 
-      score2: 0, 
-      goalsToWin: 5,
-      bestOf3State: null, // { gamesWon1: 0, gamesWon2: 0, currentGame: 1, swapSides: false }
-      swappedColors: false // traccia se i colori sono stati invertiti per questo match
-    };
-    
-    // Traccia l'ultima squadra che ha giocato e il suo colore
-    let lastMatchTeams = { team1: null, team2: null };
+    let currentMatchState = {ti:-1,mi:-1,score1:0,score2:0,goalsToWin:5,bestOf3State:null,swappedColors:false};
+    let lastMatchTeams = {team1:null,team2:null};
+    function saveData(){localStorage.setItem('players',JSON.stringify(players))}
+    function loadData(){const s=localStorage.getItem('players');if(s){try{players=JSON.parse(s)}catch(e){console.error('Error loading data',e)}}}
+    function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+    function teamKey(team){return team.filter(p=>p!=='Pippo').join(' + ')}
+    function pairKey(a,b){const s=[a,b].sort();return`${s[0]}|${s[1]}`}
 
-    function saveData() { localStorage.setItem('players', JSON.stringify(players)); }
-    function loadData() { 
-      const saved = localStorage.getItem('players');
-      if (saved) {
-        try {
-          players = JSON.parse(saved);
-        } catch (e) {
-          console.error('Error loading data', e);
-        }
+    // ===== SCONTRO DIRETTO =====
+    function headToHeadCompare(a,b,matches){
+      const aKey=teamKey(a.team),bKey=teamKey(b.team);
+      for(const m of matches){
+        if(m.winner===0) continue;
+        const t1Key=teamKey(m.team1),t2Key=teamKey(m.team2);
+        if(t1Key===aKey&&t2Key===bKey) return m.winner===1?-1:1;
+        if(t1Key===bKey&&t2Key===aKey) return m.winner===1?1:-1;
       }
-    }
-    
-    function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-    function teamKey(team) { return team.filter(p => p !== 'Pippo').join(' + '); }
-    function pairKey(a, b) { const s = [a, b].sort(); return `${s[0]}|${s[1]}`; }
-
-    // ===== Players =====
-    function addPlayer() {
-      const input = document.getElementById('playerNameInput');
-      const name = input.value.trim();
-      if (!name) { alert('Inserisci un nome!'); return; }
-      if (players.includes(name)) { alert('Giocatore già presente!'); return; }
-      players.push(name);
-      saveData();
-      renderPlayers();
-      renderTournamentSelection();
-      input.value = '';
+      return 0;
     }
 
-    function removePlayer(name) {
-      if (!confirm(`Rimuovere ${name}?`)) return;
-      players = players.filter(p => p !== name);
-      saveData();
-      renderPlayers();
-      renderTournamentSelection();
-    }
+    function addPlayer(){const input=document.getElementById('playerNameInput');const name=input.value.trim();if(!name){alert('Inserisci un nome!');return}if(players.includes(name)){alert('Giocatore già presente!');return}players.push(name);saveData();renderPlayers();renderTournamentSelection();input.value=''}
+    function removePlayer(name){if(!confirm(`Rimuovere ${name}?`))return;players=players.filter(p=>p!==name);saveData();renderPlayers();renderTournamentSelection()}
+    function renderPlayers(){document.getElementById('playersList').innerHTML=players.map(p=>`<div class="player-item"><span>${p}</span><button class="danger sm" onclick="removePlayer('${p}')">Rimuovi</button></div>`).join('')}
+    function renderTournamentSelection(){document.getElementById('tournamentSelection').innerHTML=players.map(p=>`<label class="player-checkbox"><input type="checkbox" class="player-select" value="${p}" />${p}</label>`).join('')}
 
-    function renderPlayers() {
-      const container = document.getElementById('playersList');
-      container.innerHTML = players.map(p => `<div class="player-item"><span>${p}</span><button class="danger sm" onclick="removePlayer('${p}')">Rimuovi</button></div>`).join('');
-    }
+    function bestPairing(base,historyPairs,tournamentIndex){const candidates=[];for(let attempt=0;attempt<5000;attempt++){const shuffled=shuffle(base);const pairs=[];for(let i=0;i<shuffled.length;i+=2){if(i+1<shuffled.length)pairs.push([shuffled[i],shuffled[i+1]]);else pairs.push([shuffled[i]])}const newPairs=pairs.filter(([a,b])=>b&&!historyPairs.has(pairKey(a,b)));const score=newPairs.length*1000-pairs.filter(([a,b])=>b&&historyPairs.has(pairKey(a,b))).length*500;candidates.push({pairs,score})}candidates.sort((a,b)=>b.score-a.score);const best=candidates[0].pairs;const flipBias=(tournamentIndex%2===1)?0.7:0.3;return best.map(team=>(Math.random()<flipBias?[team[1],team[0]]:team))}
 
-    function renderTournamentSelection() {
-      const container = document.getElementById('tournamentSelection');
-      container.innerHTML = players.map(p => `<label class="player-checkbox"><input type="checkbox" class="player-select" value="${p}" />${p}</label>`).join('');
-    }
+    function buildMatches(teams){const numTeams=teams.length;const goalsToWin=(numTeams===2)?10:5;const matches=[];if(numTeams===2){matches.push({round:'Meglio dei 3',team1:teams[0],team2:teams[1],info:`Primo a vincere 2 partite su 3 (ogni partita a ${goalsToWin} goal)`,winner:0,goalsToWin,gameResults:[],score1:0,score2:0})}else if(numTeams===3){matches.push({round:"Girone all'italiana",team1:teams[0],team2:teams[1],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:"Girone all'italiana",team1:teams[2],team2:teams[0],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:"Girone all'italiana",team1:teams[1],team2:teams[2],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0})}else if(numTeams===4){matches.push({round:'Semifinale 1',team1:teams[0],team2:teams[1],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'Semifinale 2',team1:teams[2],team2:teams[3],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'Finale 3°/4° posto',team1:['Perdente SF1'],team2:['Perdente SF2'],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'FINALE 1°/2° posto',team1:['Vincente SF1'],team2:['Vincente SF2'],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0})}else{const orderedMatches=[];const teamsCopy=teams.slice();const allPairs=[];for(let i=0;i<teamsCopy.length;i++)for(let j=i+1;j<teamsCopy.length;j++)allPairs.push([teamsCopy[i],teamsCopy[j]]);const used=new Set();const lastSide={};while(orderedMatches.length<allPairs.length){let bestMatch=null,bestScore=-1;for(const pair of allPairs){const pk=`${teamKey(pair[0])}-${teamKey(pair[1])}`;if(used.has(pk))continue;let score=100;if(orderedMatches.length>0){const last=orderedMatches[orderedMatches.length-1];const t0k=teamKey(pair[0]),t1k=teamKey(pair[1]);const lt1k=teamKey(last.team1),lt2k=teamKey(last.team2);if(t0k===lt1k||t0k===lt2k)score-=50;if(t1k===lt1k||t1k===lt2k)score-=50;if((t0k===lt1k||t0k===lt2k)&&lastSide[t0k]==='left')score+=25;if((t1k===lt1k||t1k===lt2k)&&lastSide[t1k]==='right')score+=25}if(score>bestScore){bestScore=score;bestMatch=pair}}if(bestMatch){let t1=bestMatch[0],t2=bestMatch[1];if(orderedMatches.length>0){const last=orderedMatches[orderedMatches.length-1];const t1k=teamKey(t1),t2k=teamKey(t2);const lt1k=teamKey(last.team1),lt2k=teamKey(last.team2);if(t1k===lt1k&&lastSide[t1k]==='left')[t1,t2]=[t2,t1];else if(t2k===lt2k&&lastSide[t2k]==='right')[t1,t2]=[t2,t1]}lastSide[teamKey(t1)]='left';lastSide[teamKey(t2)]='right';orderedMatches.push({round:'Girone',team1:t1,team2:t2,info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});used.add(`${teamKey(bestMatch[0])}-${teamKey(bestMatch[1])}`)}}return orderedMatches}return matches}
 
-    // ===== Pairing =====
-    function bestPairing(base, historyPairs, tournamentIndex) {
-      const candidates = [];
-      for (let attempt = 0; attempt < 5000; attempt++) {
-        const shuffled = shuffle(base);
-        const pairs = [];
-        for (let i = 0; i < shuffled.length; i += 2) {
-          if (i + 1 < shuffled.length) pairs.push([shuffled[i], shuffled[i + 1]]);
-          else pairs.push([shuffled[i]]);
-        }
-        const newPairs = pairs.filter(([a,b]) => b && !historyPairs.has(pairKey(a,b)));
-        const score = newPairs.length * 1000 - pairs.filter(([a,b]) => b && historyPairs.has(pairKey(a,b))).length * 500;
-        candidates.push({ pairs, score });
-      }
-      candidates.sort((a, b) => b.score - a.score);
-      const best = candidates[0].pairs;
-      const flipBias = (tournamentIndex % 2 === 1) ? 0.7 : 0.3;
-      return best.map(team => (Math.random() < flipBias ? [team[1], team[0]] : team));
-    }
+    function createSequentialTournaments(n=4){const selected=Array.from(document.querySelectorAll('.player-select:checked')).map(cb=>cb.value);if(selected.length<4){alert('Seleziona almeno 4 giocatori!');return}const isOdd=(selected.length%2!==0);const base=isOdd?selected.concat('Pippo'):selected.slice();const tournaments=[];const historyPairs=new Set();let lastPartner=null;for(let t=0;t<n;t++){let teams=bestPairing(base,historyPairs,t);let pippoPartner=null;if(isOdd){let pippoIdx=teams.findIndex(team=>team.includes('Pippo'));if(pippoIdx===-1){if(teams.length===0)teams.push(['Pippo']);else teams[0][0]='Pippo';pippoIdx=0}pippoPartner=teams[pippoIdx].find(p=>p!=='Pippo');if(lastPartner&&pippoPartner===lastPartner){let changed=false;for(let j=0;j<teams.length&&!changed;j++){if(j===pippoIdx)continue;for(let m=0;m<teams[j].length&&!changed;m++){const candidate=teams[j][m];if(candidate!==lastPartner){const ex=pippoPartner;teams[j][m]=ex;teams[pippoIdx][teams[pippoIdx].indexOf(ex)]=candidate;pippoPartner=candidate;changed=true}}}}lastPartner=pippoPartner}for(const[a,b]of teams)historyPairs.add(pairKey(a,b));const matches=buildMatches(teams);matches.forEach(mm=>mm.pippoSub=null);const pippoQueue=isOdd?shuffle(selected.filter(p=>p!==pippoPartner)):[];const standings=initStandings(teams);tournaments.push({teams,matches,hasPippo:isOdd,pippoPartner,standings,pippoQueue,_pippoQueueState:null,colorPreference:{}})}window.__tournaments=tournaments;window.__selectedPlayers=selected;renderSequentialTournaments(tournaments);const container=document.querySelector('.container');const playersSection=document.getElementById('playersSection');if(container&&playersSection)container.appendChild(playersSection)}
 
-    function buildMatches(teams) {
-      const numTeams = teams.length;
-      const goalsToWin = (numTeams === 2) ? 10 : 5;
-      const matches = [];
-      
-      if (numTeams === 2) {
-        matches.push({ round: 'Meglio dei 3', team1: teams[0], team2: teams[1], info: `Primo a vincere 2 partite su 3 (ogni partita a ${goalsToWin} goal)`, winner: 0, goalsToWin, gameResults: [], score1: 0, score2: 0 });
-      }
-      else if (numTeams === 3) {
-        matches.push({ round: "Girone all'italiana", team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-        matches.push({ round: "Girone all'italiana", team1: teams[2], team2: teams[0], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-        matches.push({ round: "Girone all'italiana", team1: teams[1], team2: teams[2], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-      }
-      else if (numTeams === 4) {
-        matches.push({ round: 'Semifinale 1', team1: teams[0], team2: teams[1], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-        matches.push({ round: 'Semifinale 2', team1: teams[2], team2: teams[3], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-        matches.push({ round: 'Finale 3°/4° posto', team1: ['Perdente SF1'], team2: ['Perdente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-        matches.push({ round: 'FINALE 1°/2° posto', team1: ['Vincente SF1'], team2: ['Vincente SF2'], info: `Partita a ${goalsToWin} goal`, winner: 0, goalsToWin, score1: 0, score2: 0 });
-      }
-      else {
-        // Per gironi con 5+ squadre, organizziamo i match in modo che chi rimane cambi lato
-        // Usiamo un sistema round-robin con rotazione
-        const orderedMatches = [];
-        const teamsCopy = teams.slice();
-        
-        // Generiamo tutti i possibili match
-        const allPairs = [];
-        for (let i = 0; i < teamsCopy.length; i++) {
-          for (let j = i + 1; j < teamsCopy.length; j++) {
-            allPairs.push([teamsCopy[i], teamsCopy[j]]);
-          }
-        }
-        
-        // Riordiniamo i match per minimizzare le ripetizioni consecutive di squadre
-        // e alternare i lati quando una squadra gioca consecutivamente
-        const used = new Set();
-        const lastSide = {}; // traccia su quale lato ha giocato l'ultima volta ogni squadra
-        
-        while (orderedMatches.length < allPairs.length) {
-          let bestMatch = null;
-          let bestScore = -1;
-          
-          for (const pair of allPairs) {
-            const pairKey = `${teamKey(pair[0])}-${teamKey(pair[1])}`;
-            if (used.has(pairKey)) continue;
-            
-            // Calcola score: preferisci match dove nessuna squadra ha appena giocato
-            let score = 100;
-            if (orderedMatches.length > 0) {
-              const lastMatch = orderedMatches[orderedMatches.length - 1];
-              const team0Key = teamKey(pair[0]);
-              const team1Key = teamKey(pair[1]);
-              const lastTeam1Key = teamKey(lastMatch.team1);
-              const lastTeam2Key = teamKey(lastMatch.team2);
-              
-              // Se una squadra ha appena giocato, riduci lo score
-              if (team0Key === lastTeam1Key || team0Key === lastTeam2Key) score -= 50;
-              if (team1Key === lastTeam1Key || team1Key === lastTeam2Key) score -= 50;
-              
-              // Ma se una squadra DEVE giocare di nuovo, assicurati che cambi lato
-              let finalTeam1 = pair[0];
-              let finalTeam2 = pair[1];
-              
-              if (team0Key === lastTeam1Key || team0Key === lastTeam2Key) {
-                // team0 ha appena giocato, dovrebbe cambiare lato
-                if (lastSide[team0Key] === 'left') {
-                  // Era a sinistra, ora deve stare a destra
-                  finalTeam1 = pair[1];
-                  finalTeam2 = pair[0];
-                  score += 25; // bonus per cambio lato corretto
-                }
-              }
-              
-              if (team1Key === lastTeam1Key || team1Key === lastTeam2Key) {
-                // team1 ha appena giocato, dovrebbe cambiare lato
-                if (lastSide[team1Key] === 'right') {
-                  // Era a destra, ora deve stare a sinistra
-                  finalTeam1 = pair[1];
-                  finalTeam2 = pair[0];
-                  score += 25; // bonus per cambio lato corretto
-                }
-              }
-            }
-            
-            if (score > bestScore) {
-              bestScore = score;
-              bestMatch = pair;
-            }
-          }
-          
-          if (bestMatch) {
-            let team1 = bestMatch[0];
-            let team2 = bestMatch[1];
-            
-            // Se una delle due squadre ha giocato nel match precedente, mettila dall'altro lato
-            if (orderedMatches.length > 0) {
-              const lastMatch = orderedMatches[orderedMatches.length - 1];
-              const team1Key = teamKey(team1);
-              const team2Key = teamKey(team2);
-              const lastTeam1Key = teamKey(lastMatch.team1);
-              const lastTeam2Key = teamKey(lastMatch.team2);
-              
-              // Se team1 era nel match precedente, controlla su quale lato e invertilo
-              if (team1Key === lastTeam1Key && lastSide[team1Key] === 'left') {
-                [team1, team2] = [team2, team1]; // sposta a destra
-              } else if (team1Key === lastTeam2Key && lastSide[team1Key] === 'right') {
-                // già a sinistra, va bene
-              } else if (team2Key === lastTeam1Key && lastSide[team2Key] === 'left') {
-                // team2 era a sinistra, ora deve stare a destra (già è a destra)
-              } else if (team2Key === lastTeam2Key && lastSide[team2Key] === 'right') {
-                [team1, team2] = [team2, team1]; // sposta a sinistra
-              }
-            }
-            
-            lastSide[teamKey(team1)] = 'left';
-            lastSide[teamKey(team2)] = 'right';
-            
-            orderedMatches.push({ 
-              round: 'Girone', 
-              team1: team1, 
-              team2: team2, 
-              info: `Partita a ${goalsToWin} goal`, 
-              winner: 0, 
-              goalsToWin,
-              score1: 0,
-              score2: 0
-            });
-            
-            const pairKey = `${teamKey(bestMatch[0])}-${teamKey(bestMatch[1])}`;
-            used.add(pairKey);
-          }
-        }
-        
-        return orderedMatches;
-      }
-      return matches;
-    }
+    function initStandings(teams){const table={};teams.forEach(team=>{table[teamKey(team)]={team:team.slice(),W:0,L:0,GF:0,GS:0,GD:0}});return table}
+    function resetTournament(ti){const t=window.__tournaments[ti];t.matches.forEach(m=>m.winner=0);t.standings=initStandings(t.teams);renderSequentialTournaments(window.__tournaments)}
 
-    function createSequentialTournaments(n = 4) {
-      const selected = Array.from(document.querySelectorAll('.player-select:checked')).map(cb => cb.value);
-      if (selected.length < 4) { alert('Seleziona almeno 4 giocatori!'); return; }
-      
-      const isOdd = (selected.length % 2 !== 0);
-      const base = isOdd ? selected.concat('Pippo') : selected.slice();
+    function recordResult(ti,mi,winnerSide){const t=window.__tournaments[ti];const m=t.matches[mi];if(!m)return;m.winner=winnerSide;t.standings=initStandings(t.teams);t.matches.forEach(mm=>{if(mm.winner===1||mm.winner===2){const A=teamKey(mm.team1),B=teamKey(mm.team2);if(!(A in t.standings))t.standings[A]={team:mm.team1.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(!(B in t.standings))t.standings[B]={team:mm.team2.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(mm.winner===1){t.standings[A].W++;t.standings[B].L++}if(mm.winner===2){t.standings[B].W++;t.standings[A].L++}if(mm.score1!==undefined&&mm.score2!==undefined){t.standings[A].GF+=mm.score1;t.standings[A].GS+=mm.score2;t.standings[B].GF+=mm.score2;t.standings[B].GS+=mm.score1}t.standings[A].GD=t.standings[A].GF-t.standings[A].GS;t.standings[B].GD=t.standings[B].GF-t.standings[B].GS}});if(t.teams.length===4)updateSemifinalPlaceholders(t);if(t.teams.length===3){if(mi===0&&(m.winner===1||m.winner===2)){const loser=(m.winner===1)?teamKey(m.team2):teamKey(m.team1);const involvesLoser=(mm)=>teamKey(mm.team1)===loser||teamKey(mm.team2)===loser;if(!involvesLoser(t.matches[1])&&involvesLoser(t.matches[2])){const tmp=t.matches[1];t.matches[1]=t.matches[2];t.matches[2]=tmp}}}renderSequentialTournaments(window.__tournaments)}
 
-      const tournaments = [];
-      const historyPairs = new Set();
-      let lastPartner = null;
-      
-      for (let t = 0; t < n; t++) {
-        let teams = bestPairing(base, historyPairs, t);
-        let pippoPartner = null;
-        
-        if (isOdd) {
-          let pippoIdx = teams.findIndex(team => team.includes('Pippo'));
-          if (pippoIdx === -1) {
-            if (teams.length === 0) teams.push(['Pippo']);
-            else teams[0][0] = 'Pippo';
-            pippoIdx = 0;
-          }
-          pippoPartner = teams[pippoIdx].find(p => p !== 'Pippo');
-          
-          if (lastPartner && pippoPartner === lastPartner) {
-            let changed = false;
-            for (let j = 0; j < teams.length && !changed; j++) {
-              if (j === pippoIdx) continue;
-              for (let m = 0; m < teams[j].length && !changed; m++) {
-                const candidate = teams[j][m];
-                if (candidate !== lastPartner) {
-                  const ex = pippoPartner;
-                  teams[j][m] = ex;
-                  const k = teams[pippoIdx].indexOf(ex);
-                  teams[pippoIdx][k] = candidate;
-                  pippoPartner = candidate;
-                  changed = true;
-                }
-              }
-            }
-          }
-          lastPartner = pippoPartner;
-        }
-        
-        for (const [a,b] of teams) historyPairs.add(pairKey(a,b));
-        const matches = buildMatches(teams);
-        matches.forEach(mm => mm.pippoSub = null);
-        const pippoQueue = isOdd ? shuffle(selected.filter(p => p !== pippoPartner)) : [];
-        const standings = initStandings(teams);
-        tournaments.push({ 
-          teams, 
-          matches, 
-          hasPippo: isOdd, 
-          pippoPartner, 
-          standings, 
-          pippoQueue, 
-          _pippoQueueState: null,
-          colorPreference: {} // traccia: { 'NomeSquadra': 'red' o 'blue' }
-        });
-      }
-      
-      window.__tournaments = tournaments;
-      window.__selectedPlayers = selected;
-      renderSequentialTournaments(tournaments);
-      
-      // Sposta la sezione "Inserisci Giocatori" in fondo
-      const container = document.querySelector('.container');
-      const playersSection = document.getElementById('playersSection');
-      if (container && playersSection) {
-        container.appendChild(playersSection);
-      }
-    }
+    function updateSemifinalPlaceholders(t){const sf1=t.matches.find(m=>m.round==='Semifinale 1');const sf2=t.matches.find(m=>m.round==='Semifinale 2');const f34=t.matches.find(m=>m.round==='Finale 3°/4° posto');const f12=t.matches.find(m=>m.round==='FINALE 1°/2° posto');if(sf1&&sf1.winner!==0){const w1=sf1.winner===1?sf1.team1:sf1.team2,l1=sf1.winner===1?sf1.team2:sf1.team1;if(f12&&f12.team1[0]==='Vincente SF1')f12.team1=w1.slice();if(f12&&f12.team2[0]==='Vincente SF1')f12.team2=w1.slice();if(f34&&f34.team1[0]==='Perdente SF1')f34.team1=l1.slice();if(f34&&f34.team2[0]==='Perdente SF1')f34.team2=l1.slice()}if(sf2&&sf2.winner!==0){const w2=sf2.winner===1?sf2.team1:sf2.team2,l2=sf2.winner===1?sf2.team2:sf2.team1;if(f12&&f12.team1[0]==='Vincente SF2')f12.team1=w2.slice();if(f12&&f12.team2[0]==='Vincente SF2')f12.team2=w2.slice();if(f34&&f34.team1[0]==='Perdente SF2')f34.team1=l2.slice();if(f34&&f34.team2[0]==='Perdente SF2')f34.team2=l2.slice()}}
 
-    // ===== Standings =====
-    function headToHead(a, b, matches) {
-      const keyA = teamKey(a.team);
-      const keyB = teamKey(b.team);
-      const m = matches.find(mm =>
-        (teamKey(mm.team1) === keyA && teamKey(mm.team2) === keyB) ||
-        (teamKey(mm.team1) === keyB && teamKey(mm.team2) === keyA)
-      );
-      if (!m || m.winner === 0) return 0;
-      const aIsTeam1 = teamKey(m.team1) === keyA;
-      if ((aIsTeam1 && m.winner === 1) || (!aIsTeam1 && m.winner === 2)) return -1; // a ha vinto lo scontro diretto
-      return 1; // b ha vinto lo scontro diretto
-    }
+    function getWinnersList(t){if(t.matches.some(m=>m.round.includes('FINALE'))){const f=t.matches.find(m=>m.round.includes('FINALE'));if(f&&(f.winner===1||f.winner===2))return[f.winner===1?teamKey(f.team1):teamKey(f.team2)];return[]}const arr=Object.values(t.standings).slice().sort((a,b)=>(b.W-a.W)||(b.GD-a.GD)||headToHeadCompare(a,b,t.matches)||(a.L-b.L));if(!arr.length)return[];const allDone=t.matches.every(m=>m.winner!==0);if(allDone)return[teamKey(arr[0].team)];const topW=arr[0].W;return arr.filter(x=>x.W===topW).map(x=>teamKey(x.team))}
 
-    function initStandings(teams) {
-      const table = {};
-      teams.forEach(team => {
-        table[teamKey(team)] = { team: team.slice(), W: 0, L: 0, GF: 0, GS: 0, GD: 0 };
-      });
-      return table;
-    }
+    function openFullscreenMatch(ti,mi){const t=window.__tournaments[ti];const m=t.matches[mi];const isBo3=m.round==='Meglio dei 3';if(!t.lastMatchColors)t.lastMatchColors={};let shouldSwap=false;const t1k=teamKey(m.team1),t2k=teamKey(m.team2);const t1lc=t.lastMatchColors[t1k],t2lc=t.lastMatchColors[t2k];if(t1lc||t2lc){if(t1lc==='red')shouldSwap=true;else if(t1lc==='blue')shouldSwap=false;else if(t2lc==='red')shouldSwap=false;else if(t2lc==='blue')shouldSwap=true}currentMatchState={ti,mi,score1:0,score2:0,goalsToWin:m.goalsToWin||5,bestOf3State:isBo3?{gamesWon1:0,gamesWon2:0,currentGame:1,swapSides:false}:null,swappedColors:shouldSwap};let team1=m.team1.slice(),team2=m.team2.slice();if(t.hasPippo&&(team1.includes('Pippo')||team2.includes('Pippo'))){let ps=m.pippoSub||null;if(!ps){const playing=team1.concat(team2).filter(p=>p!=='Pippo');const q=t._pippoQueueState||[];let idx=q.findIndex(p=>p!==t.pippoPartner&&!playing.includes(p));if(idx===-1)idx=q.findIndex(p=>p!==t.pippoPartner);if(idx>=0){ps=q[idx];q.splice(idx,1);q.push(ps);m.pippoSub=ps}}team1=team1.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p);team2=team2.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p)}updateFullscreenUI(ti,mi,team1,team2);document.getElementById('matchFullscreen').classList.add('active')}
 
-    function resetTournament(ti) {
-      const t = window.__tournaments[ti];
-      t.matches.forEach(m => m.winner = 0);
-      t.standings = initStandings(t.teams);
-      renderSequentialTournaments(window.__tournaments);
-    }
+    function updateFullscreenUI(ti,mi,team1,team2){const t=window.__tournaments[ti];const m=t.matches[mi];const state=currentMatchState.bestOf3State;let matchInfo=`Torneo ${ti+1} - ${m.round} - Partita ${mi+1}`;if(state)matchInfo=`Torneo ${ti+1} - ${m.round} - Game ${state.currentGame}/3 (${state.gamesWon1}-${state.gamesWon2})`;const shouldSwap=(state&&state.swapSides)||currentMatchState.swappedColors;if(shouldSwap)[team1,team2]=[team2,team1];document.getElementById('fsMatchInfo').textContent=matchInfo;document.getElementById('fsTeam1Names').innerHTML=team1.join('<br>');document.getElementById('fsTeam2Names').innerHTML=team2.join('<br>');document.getElementById('fsScore1').textContent='0';document.getElementById('fsScore2').textContent='0';document.getElementById('fsConfirmArea').style.display='none';const b1=document.getElementById('fsTeam1'),b2=document.getElementById('fsTeam2');b1.classList.remove('winner','red','blue');b2.classList.remove('winner','red','blue');b1.classList.add('red');b2.classList.add('blue');updateFullscreenStandings(ti,mi)}
 
-    function recordResult(ti, mi, winnerSide) {
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      if (!m) return;
-      m.winner = winnerSide;
-      
-      t.standings = initStandings(t.teams);
-      t.matches.forEach(mm => {
-        if (mm.winner === 1 || mm.winner === 2) {
-          const A = teamKey(mm.team1), B = teamKey(mm.team2);
-          if (!(A in t.standings)) t.standings[A] = { team: mm.team1.slice(), W:0, L:0, GF:0, GS:0, GD:0 };
-          if (!(B in t.standings)) t.standings[B] = { team: mm.team2.slice(), W:0, L:0, GF:0, GS:0, GD:0 };
-          
-          // Calcola vittorie e sconfitte
-          if (mm.winner === 1) { 
-            t.standings[A].W++; 
-            t.standings[B].L++; 
-          }
-          if (mm.winner === 2) { 
-            t.standings[B].W++; 
-            t.standings[A].L++; 
-          }
-          
-          // Calcola goal fatti e subiti (se disponibili)
-          if (mm.score1 !== undefined && mm.score2 !== undefined) {
-            t.standings[A].GF += mm.score1;
-            t.standings[A].GS += mm.score2;
-            t.standings[B].GF += mm.score2;
-            t.standings[B].GS += mm.score1;
-          }
-          
-          // Calcola differenza reti
-          t.standings[A].GD = t.standings[A].GF - t.standings[A].GS;
-          t.standings[B].GD = t.standings[B].GF - t.standings[B].GS;
-        }
-      });
-      
-      // Per tornei a 4 squadre, aggiorna i placeholder delle finali
-      if (t.teams.length === 4) {
-        updateSemifinalPlaceholders(t);
-      }
-      
-      if (t.teams.length === 3) {
-        if (mi === 0 && (m.winner === 1 || m.winner === 2)) {
-          const loser = (m.winner === 1) ? teamKey(m.team2) : teamKey(m.team1);
-          const involvesLoser = (mm) => teamKey(mm.team1) === loser || teamKey(mm.team2) === loser;
-          if (!involvesLoser(t.matches[1]) && involvesLoser(t.matches[2])) {
-            const tmp = t.matches[1];
-            t.matches[1] = t.matches[2];
-            t.matches[2] = tmp;
-          }
-        }
-      }
-      
-      renderSequentialTournaments(window.__tournaments);
-    }
-    
-    function updateSemifinalPlaceholders(t) {
-      // Trova le semifinali
-      const sf1 = t.matches.find(m => m.round === 'Semifinale 1');
-      const sf2 = t.matches.find(m => m.round === 'Semifinale 2');
-      
-      // Trova le finali
-      const final34 = t.matches.find(m => m.round === 'Finale 3°/4° posto');
-      const final12 = t.matches.find(m => m.round === 'FINALE 1°/2° posto');
-      
-      // Se SF1 è completata, aggiorna i placeholder
-      if (sf1 && sf1.winner !== 0) {
-        const winner1 = sf1.winner === 1 ? sf1.team1 : sf1.team2;
-        const loser1 = sf1.winner === 1 ? sf1.team2 : sf1.team1;
-        
-        // Aggiorna finale 1°/2° posto
-        if (final12 && final12.team1[0] === 'Vincente SF1') {
-          final12.team1 = winner1.slice();
-        }
-        if (final12 && final12.team2[0] === 'Vincente SF1') {
-          final12.team2 = winner1.slice();
-        }
-        
-        // Aggiorna finale 3°/4° posto
-        if (final34 && final34.team1[0] === 'Perdente SF1') {
-          final34.team1 = loser1.slice();
-        }
-        if (final34 && final34.team2[0] === 'Perdente SF1') {
-          final34.team2 = loser1.slice();
-        }
-      }
-      
-      // Se SF2 è completata, aggiorna i placeholder
-      if (sf2 && sf2.winner !== 0) {
-        const winner2 = sf2.winner === 1 ? sf2.team1 : sf2.team2;
-        const loser2 = sf2.winner === 1 ? sf2.team2 : sf2.team1;
-        
-        // Aggiorna finale 1°/2° posto
-        if (final12 && final12.team1[0] === 'Vincente SF2') {
-          final12.team1 = winner2.slice();
-        }
-        if (final12 && final12.team2[0] === 'Vincente SF2') {
-          final12.team2 = winner2.slice();
-        }
-        
-        // Aggiorna finale 3°/4° posto
-        if (final34 && final34.team1[0] === 'Perdente SF2') {
-          final34.team1 = loser2.slice();
-        }
-        if (final34 && final34.team2[0] === 'Perdente SF2') {
-          final34.team2 = loser2.slice();
-        }
-      }
-    }
+    function updateFullscreenStandings(ti,mi){const t=window.__tournaments[ti];const m=t.matches[mi];const tbody=document.getElementById('fsStandingsBody');const ct1k=teamKey(m.team1),ct2k=teamKey(m.team2);const temp={};Object.keys(t.standings).forEach(key=>{temp[key]={...t.standings[key]}});if(currentMatchState.score1>0||currentMatchState.score2>0){const{score1,score2,swappedColors}=currentMatchState;let r1,r2;if(swappedColors){r1=score2;r2=score1}else{r1=score1;r2=score2}if(temp[ct1k]){temp[ct1k].GF+=r1;temp[ct1k].GS+=r2;temp[ct1k].GD=temp[ct1k].GF-temp[ct1k].GS}if(temp[ct2k]){temp[ct2k].GF+=r2;temp[ct2k].GS+=r1;temp[ct2k].GD=temp[ct2k].GF-temp[ct2k].GS}if(r1>r2&&temp[ct1k]){temp[ct1k].W++;if(temp[ct2k])temp[ct2k].L++}else if(r2>r1&&temp[ct2k]){temp[ct2k].W++;if(temp[ct1k])temp[ct1k].L++}}const sorted=Object.values(temp).sort((a,b)=>(b.W-a.W)||(b.GD-a.GD)||headToHeadCompare(a,b,t.matches)||(a.L-b.L)||teamKey(a.team).localeCompare(teamKey(b.team)));let html='';sorted.forEach((row,idx)=>{const tKey=teamKey(row.team);const isCur=(tKey===ct1k||tKey===ct2k);const isLead=idx===0&&t.matches.every(mm=>mm.winner!==0);let cls='';if(isLead)cls='highlight-winner';else if(isCur)cls='current-match';html+=`<tr class="${cls}"><td>${idx+1}${isLead?' 🏆':''}</td><td style="font-weight:${isCur?'bold':'normal'};">${tKey}${isCur?' 🎯':''}</td><td>${row.W}</td><td>${row.L}</td><td>${row.GF}</td><td>${row.GS}</td><td style="font-weight:bold;">${row.GD>0?'+':''}${row.GD}</td></tr>`});tbody.innerHTML=html}
 
-    function getWinnersList(t) {
-      if (t.matches.some(m => m.round.includes('FINALE'))) {
-        const final = t.matches.find(m => m.round.includes('FINALE'));
-        if (final && (final.winner === 1 || final.winner === 2)) {
-          return [ final.winner === 1 ? teamKey(final.team1) : teamKey(final.team2) ];
-        }
-        return [];
-      }
-      
-      // Ordina per: vittorie (desc), differenza reti (desc), scontro diretto, sconfitte (asc)
-      const arr = Object.values(t.standings).slice().sort((a,b) =>
-        (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L)
-      );
-      
-      if (!arr.length) return [];
-      
-      // Controlla se tutti i match sono stati giocati
-      const allMatchesPlayed = t.matches.every(m => m.winner !== 0);
-      
-      if (allMatchesPlayed) {
-        // Se tutti i match sono stati giocati, restituisci solo il primo (considerando differenza reti)
-        return [teamKey(arr[0].team)];
-      } else {
-        // Se i match non sono ancora tutti giocati, restituisci tutti con le stesse vittorie (comportamento precedente)
-        const topW = arr[0].W;
-        return arr.filter(x => x.W === topW).map(x => teamKey(x.team));
-      }
-    }
+    function closeFullscreenMatch(){document.getElementById('matchFullscreen').classList.remove('active');currentMatchState={ti:-1,mi:-1,score1:0,score2:0,goalsToWin:5,bestOf3State:null,swappedColors:false}}
+    function swapTeamColors(){currentMatchState.swappedColors=!currentMatchState.swappedColors;const n1=document.getElementById('fsTeam1Names').innerHTML,n2=document.getElementById('fsTeam2Names').innerHTML;document.getElementById('fsTeam1Names').innerHTML=n2;document.getElementById('fsTeam2Names').innerHTML=n1;const s1=currentMatchState.score1,s2=currentMatchState.score2;currentMatchState.score1=s2;currentMatchState.score2=s1;document.getElementById('fsScore1').textContent=currentMatchState.score1;document.getElementById('fsScore2').textContent=currentMatchState.score2;checkWinner()}
+    function addGoal(team){const{goalsToWin}=currentMatchState;if(team===1){if(currentMatchState.score1>=goalsToWin)return;currentMatchState.score1++;document.getElementById('fsScore1').textContent=currentMatchState.score1}else{if(currentMatchState.score2>=goalsToWin)return;currentMatchState.score2++;document.getElementById('fsScore2').textContent=currentMatchState.score2}updateFullscreenStandings(currentMatchState.ti,currentMatchState.mi);checkWinner()}
+    function removeGoal(team){if(team===1&&currentMatchState.score1>0){currentMatchState.score1--;document.getElementById('fsScore1').textContent=currentMatchState.score1}else if(team===2&&currentMatchState.score2>0){currentMatchState.score2--;document.getElementById('fsScore2').textContent=currentMatchState.score2}updateFullscreenStandings(currentMatchState.ti,currentMatchState.mi);checkWinner()}
+    function checkWinner(){const{score1,score2,goalsToWin}=currentMatchState;if(score1>=goalsToWin||score2>=goalsToWin){document.getElementById('fsConfirmArea').style.display='flex';if(score1>=goalsToWin){document.getElementById('fsTeam1').classList.add('winner');document.getElementById('fsTeam2').classList.remove('winner')}else{document.getElementById('fsTeam2').classList.add('winner');document.getElementById('fsTeam1').classList.remove('winner')}}else{document.getElementById('fsConfirmArea').style.display='none';document.getElementById('fsTeam1').classList.remove('winner');document.getElementById('fsTeam2').classList.remove('winner')}}
+    function cancelWin(){document.getElementById('fsConfirmArea').style.display='none';document.getElementById('fsTeam1').classList.remove('winner');document.getElementById('fsTeam2').classList.remove('winner')}
 
-    // ===== Fullscreen Match =====
-    function openFullscreenMatch(ti, mi) {
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      
-      const isBestOf3 = m.round === 'Meglio dei 3';
-      
-      // Inizializza lastMatchColors se non esiste
-      if (!t.lastMatchColors) {
-        t.lastMatchColors = {};
-      }
-      
-      let shouldSwap = false;
-      const team1Key = teamKey(m.team1);
-      const team2Key = teamKey(m.team2);
-      
-      // LOGICA: Chi ha appena giocato cambia lato
-      // Controlla se una delle squadre ha giocato nel match precedente
-      const team1LastColor = t.lastMatchColors[team1Key];
-      const team2LastColor = t.lastMatchColors[team2Key];
-      
-      console.log('Apertura match - Team1:', team1Key, 'ultimo colore:', team1LastColor);
-      console.log('Apertura match - Team2:', team2Key, 'ultimo colore:', team2LastColor);
-      
-      if (team1LastColor || team2LastColor) {
-        // Almeno una squadra ha giocato prima
-        
-        if (team1LastColor === 'red') {
-          // team1 era rosso (sinistra), ora deve essere blu (destra) → swap
-          shouldSwap = true;
-        } else if (team1LastColor === 'blue') {
-          // team1 era blu (destra), ora deve essere rosso (sinistra) → no swap
-          shouldSwap = false;
-        } else if (team2LastColor === 'red') {
-          // team2 era rosso (sinistra), ora deve essere blu (destra) → già a destra, no swap
-          shouldSwap = false;
-        } else if (team2LastColor === 'blue') {
-          // team2 era blu (destra), ora deve essere rosso (sinistra) → swap
-          shouldSwap = true;
-        }
-      }
-      
-      console.log('Decisione swap:', shouldSwap);
-      
-      currentMatchState = {
-        ti: ti,
-        mi: mi,
-        score1: 0,
-        score2: 0,
-        goalsToWin: m.goalsToWin || 5,
-        bestOf3State: isBestOf3 ? { gamesWon1: 0, gamesWon2: 0, currentGame: 1, swapSides: false } : null,
-        swappedColors: shouldSwap
-      };
-      
-      // Setup UI
-      let team1 = m.team1.slice();
-      let team2 = m.team2.slice();
-      
-      if (t.hasPippo && (team1.includes('Pippo') || team2.includes('Pippo'))) {
-        let pippoSub = m.pippoSub || null;
-        if (!pippoSub) {
-          const playing = team1.concat(team2).filter(p => p !== 'Pippo');
-          const q = t._pippoQueueState || [];
-          let idx = q.findIndex(p => p !== t.pippoPartner && !playing.includes(p));
-          if (idx === -1) idx = q.findIndex(p => p !== t.pippoPartner);
-          if (idx >= 0) {
-            pippoSub = q[idx];
-            q.splice(idx,1);
-            q.push(pippoSub);
-            m.pippoSub = pippoSub;
-          }
-        }
-        team1 = team1.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-        team2 = team2.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-      }
-      
-      updateFullscreenUI(ti, mi, team1, team2);
-      
-      document.getElementById('matchFullscreen').classList.add('active');
-    }
-    
-    function updateFullscreenUI(ti, mi, team1, team2) {
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      const state = currentMatchState.bestOf3State;
-      
-      let matchInfo = `Torneo ${ti+1} - ${m.round} - Partita ${mi+1}`;
-      if (state) {
-        matchInfo = `Torneo ${ti+1} - ${m.round} - Game ${state.currentGame}/3 (${state.gamesWon1}-${state.gamesWon2})`;
-      }
-      
-      // Swap teams if needed (per bestOf3 o per swap manuale)
-      const shouldSwap = (state && state.swapSides) || currentMatchState.swappedColors;
-      if (shouldSwap) {
-        [team1, team2] = [team2, team1];
-      }
-      
-      document.getElementById('fsMatchInfo').textContent = matchInfo;
-      document.getElementById('fsTeam1Names').innerHTML = team1.join('<br>');
-      document.getElementById('fsTeam2Names').innerHTML = team2.join('<br>');
-      document.getElementById('fsScore1').textContent = '0';
-      document.getElementById('fsScore2').textContent = '0';
-      document.getElementById('fsConfirmArea').style.display = 'none';
-      
-      // Applica i colori
-      const team1Box = document.getElementById('fsTeam1');
-      const team2Box = document.getElementById('fsTeam2');
-      
-      team1Box.classList.remove('winner', 'red', 'blue');
-      team2Box.classList.remove('winner', 'red', 'blue');
-      
-      team1Box.classList.add('red');
-      team2Box.classList.add('blue');
-      
-      // Aggiorna la classifica
-      updateFullscreenStandings(ti, mi);
-    }
-    
-    function updateFullscreenStandings(ti, mi) {
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      const tbody = document.getElementById('fsStandingsBody');
-      
-      // Ottieni le squadre del match corrente
-      const currentTeam1Key = teamKey(m.team1);
-      const currentTeam2Key = teamKey(m.team2);
-      
-      // Crea una copia della classifica per calcolare i punteggi temporanei
-      const tempStandings = {};
-      Object.keys(t.standings).forEach(key => {
-        tempStandings[key] = { ...t.standings[key] };
-      });
-      
-      // Aggiungi i punteggi del match corrente alla classifica temporanea
-      if (currentMatchState.score1 > 0 || currentMatchState.score2 > 0) {
-        const { score1, score2, swappedColors } = currentMatchState;
-        
-        // Determina i punteggi reali considerando lo swap
-        let realScore1, realScore2;
-        if (swappedColors) {
-          realScore1 = score2;
-          realScore2 = score1;
-        } else {
-          realScore1 = score1;
-          realScore2 = score2;
-        }
-        
-        // Aggiungi goal fatti e subiti temporanei
-        if (tempStandings[currentTeam1Key]) {
-          tempStandings[currentTeam1Key].GF += realScore1;
-          tempStandings[currentTeam1Key].GS += realScore2;
-          tempStandings[currentTeam1Key].GD = tempStandings[currentTeam1Key].GF - tempStandings[currentTeam1Key].GS;
-        }
-        
-        if (tempStandings[currentTeam2Key]) {
-          tempStandings[currentTeam2Key].GF += realScore2;
-          tempStandings[currentTeam2Key].GS += realScore1;
-          tempStandings[currentTeam2Key].GD = tempStandings[currentTeam2Key].GF - tempStandings[currentTeam2Key].GS;
-        }
-        
-        // Aggiungi vittoria/sconfitta temporanea se uno sta vincendo
-        if (realScore1 > realScore2 && tempStandings[currentTeam1Key]) {
-          tempStandings[currentTeam1Key].W++;
-          if (tempStandings[currentTeam2Key]) tempStandings[currentTeam2Key].L++;
-        } else if (realScore2 > realScore1 && tempStandings[currentTeam2Key]) {
-          tempStandings[currentTeam2Key].W++;
-          if (tempStandings[currentTeam1Key]) tempStandings[currentTeam1Key].L++;
-        }
-      }
-      
-      // Ordina la classifica temporanea
-      const sortedStandings = Object.values(tempStandings)
-        .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)));
-      
-      // Genera le righe
-      let html = '';
-      sortedStandings.forEach((row, idx) => {
-        const tKey = teamKey(row.team);
-        const isCurrentMatch = (tKey === currentTeam1Key || tKey === currentTeam2Key);
-        const isLeader = idx === 0 && t.matches.every(mm => mm.winner !== 0);
-        
-        let rowClass = '';
-        if (isLeader) rowClass = 'highlight-winner';
-        else if (isCurrentMatch) rowClass = 'current-match';
-        
-        html += `<tr class="${rowClass}">
-          <td>${idx + 1}${isLeader ? ' 🏆' : ''}</td>
-          <td style="font-weight: ${isCurrentMatch ? 'bold' : 'normal'};">${tKey}${isCurrentMatch ? ' 🎯' : ''}</td>
-          <td>${row.W}</td>
-          <td>${row.L}</td>
-          <td>${row.GF}</td>
-          <td>${row.GS}</td>
-          <td style="font-weight: bold;">${row.GD > 0 ? '+' : ''}${row.GD}</td>
-        </tr>`;
-      });
-      
-      tbody.innerHTML = html;
-    }
+    function confirmMatch(){const{ti,mi,score1,score2,goalsToWin,bestOf3State,swappedColors}=currentMatchState;if(score1<goalsToWin&&score2<goalsToWin){alert('Nessuna squadra ha raggiunto i goal necessari!');return}const t=window.__tournaments[ti];const m=t.matches[mi];let finalScore1=score1,finalScore2=score2;if(swappedColors&&!bestOf3State){finalScore1=score2;finalScore2=score1}let gameWinner1=score1>=goalsToWin;if(bestOf3State&&bestOf3State.swapSides)gameWinner1=!gameWinner1;if(bestOf3State){if(!m.gameResults)m.gameResults=[];m.gameResults.push({game:bestOf3State.currentGame,score1:gameWinner1?(score1>=goalsToWin?score1:score2):(score1>=goalsToWin?score2:score1),score2:gameWinner1?(score1>=goalsToWin?score2:score1):(score1>=goalsToWin?score1:score2),winner:gameWinner1?1:2});if(gameWinner1)bestOf3State.gamesWon1++;else bestOf3State.gamesWon2++;if(bestOf3State.gamesWon1>=2||bestOf3State.gamesWon2>=2){const fw=bestOf3State.gamesWon1>=2?1:2;let ts1=0,ts2=0;m.gameResults.forEach(gr=>{ts1+=gr.score1;ts2+=gr.score2});m.score1=ts1;m.score2=ts2;recordResult(ti,mi,fw);showBestOf3Victory(ti,mi,fw)}else{bestOf3State.currentGame++;bestOf3State.swapSides=!bestOf3State.swapSides;currentMatchState.score1=0;currentMatchState.score2=0;let team1=m.team1.slice(),team2=m.team2.slice();if(t.hasPippo&&(team1.includes('Pippo')||team2.includes('Pippo'))){let ps=m.pippoSub;team1=team1.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p);team2=team2.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p)}updateFullscreenUI(ti,mi,team1,team2)}}else{let winner;if(swappedColors)winner=score1>=goalsToWin?2:1;else winner=score1>=goalsToWin?1:2;if(!t.lastMatchColors)t.lastMatchColors={};const t1k=teamKey(m.team1),t2k=teamKey(m.team2);if(swappedColors){t.lastMatchColors[t1k]='blue';t.lastMatchColors[t2k]='red'}else{t.lastMatchColors[t1k]='red';t.lastMatchColors[t2k]='blue'}m.score1=finalScore1;m.score2=finalScore2;recordResult(ti,mi,winner);const allPlayed=t.matches.every(mm=>mm.winner!==0);if(allPlayed){if(t.teams.length>=3){const winners=getWinnersList(t);if(winners.length>0){showTournamentVictory(ti,winners[0]);return}}closeFullscreenMatch()}else{closeFullscreenMatch();const nextUnplayed=t.matches.findIndex((mm,i)=>i>mi&&mm.winner===0);const nmi=nextUnplayed!==-1?nextUnplayed:t.matches.findIndex(mm=>mm.winner===0);if(nmi!==-1)setTimeout(()=>openFullscreenMatch(ti,nmi),500)}}}
 
-    function closeFullscreenMatch() {
-      document.getElementById('matchFullscreen').classList.remove('active');
-      currentMatchState = { ti: -1, mi: -1, score1: 0, score2: 0, goalsToWin: 5, bestOf3State: null, swappedColors: false };
-    }
-    
-    function swapTeamColors() {
-      // Inverti lo stato di swap
-      currentMatchState.swappedColors = !currentMatchState.swappedColors;
-      
-      console.log('Swap colori - swappedColors ora:', currentMatchState.swappedColors);
-      
-      // Scambia i nomi visualizzati
-      const team1Names = document.getElementById('fsTeam1Names').innerHTML;
-      const team2Names = document.getElementById('fsTeam2Names').innerHTML;
-      document.getElementById('fsTeam1Names').innerHTML = team2Names;
-      document.getElementById('fsTeam2Names').innerHTML = team1Names;
-      
-      // Scambia i punteggi
-      const score1 = currentMatchState.score1;
-      const score2 = currentMatchState.score2;
-      currentMatchState.score1 = score2;
-      currentMatchState.score2 = score1;
-      document.getElementById('fsScore1').textContent = currentMatchState.score1;
-      document.getElementById('fsScore2').textContent = currentMatchState.score2;
-      
-      // Ricontrolla il vincitore con i nuovi punteggi
-      checkWinner();
-    }
+    function showTournamentVictory(ti,winnerName){document.querySelector('.fs-playing-area').style.display='none';document.getElementById('fsStandingsArea').style.display='none';document.getElementById('fsConfirmArea').style.display='none';const v=document.createElement('div');v.id='victoryMessage';v.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;';v.innerHTML=`<div style="font-size:3em;margin-bottom:20px;">🏆</div><div style="font-size:2em;font-weight:bold;color:white;margin-bottom:30px;">Vincitori del Torneo!</div><div style="font-size:1.8em;font-weight:bold;color:#ffd700;margin-bottom:40px;">${winnerName}</div><button class="fs-confirm-btn" onclick="closeTournamentVictory()">✓ Chiudi e Torna ai Tornei</button>`;document.getElementById('matchFullscreen').appendChild(v)}
+    function closeTournamentVictory(){const v=document.getElementById('victoryMessage');if(v)v.remove();document.querySelector('.fs-playing-area').style.display='flex';document.getElementById('fsStandingsArea').style.display='flex';closeFullscreenMatch()}
+    function showBestOf3Victory(ti,mi,winner){const t=window.__tournaments[ti];const m=t.matches[mi];const wn=teamKey(winner===1?m.team1:m.team2);document.querySelector('.fs-playing-area').style.display='none';document.getElementById('fsStandingsArea').style.display='none';document.getElementById('fsConfirmArea').style.display='none';const v=document.createElement('div');v.id='victoryMessage';v.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;';v.innerHTML=`<div style="font-size:3em;margin-bottom:20px;">🏆</div><div style="font-size:2em;font-weight:bold;color:white;margin-bottom:30px;">Vincitori del Torneo!</div><div style="font-size:1.8em;font-weight:bold;color:#ffd700;margin-bottom:40px;">${wn}</div><button class="fs-confirm-btn" onclick="closeBestOf3Victory(${ti},${mi})">✓ Chiudi e Torna ai Tornei</button>`;document.getElementById('matchFullscreen').appendChild(v)}
+    function closeBestOf3Victory(ti,mi){const v=document.getElementById('victoryMessage');if(v)v.remove();document.querySelector('.fs-playing-area').style.display='flex';document.getElementById('fsStandingsArea').style.display='flex';closeFullscreenMatch();const t=window.__tournaments[ti];const nextUnplayed=t.matches.findIndex((mm,i)=>i>mi&&mm.winner===0);const nmi=nextUnplayed!==-1?nextUnplayed:t.matches.findIndex(mm=>mm.winner===0);if(nmi!==-1)setTimeout(()=>openFullscreenMatch(ti,nmi),500)}
 
-    function addGoal(team) {
-      const { goalsToWin } = currentMatchState;
-      
-      if (team === 1) {
-        // Blocca se ha già raggiunto il massimo
-        if (currentMatchState.score1 >= goalsToWin) {
-          return;
-        }
-        currentMatchState.score1++;
-        document.getElementById('fsScore1').textContent = currentMatchState.score1;
-      } else {
-        // Blocca se ha già raggiunto il massimo
-        if (currentMatchState.score2 >= goalsToWin) {
-          return;
-        }
-        currentMatchState.score2++;
-        document.getElementById('fsScore2').textContent = currentMatchState.score2;
-      }
-      
-      // Aggiorna la classifica con i punteggi correnti
-      updateFullscreenStandings(currentMatchState.ti, currentMatchState.mi);
-      
-      checkWinner();
-    }
+    function renderSequentialTournaments(tournaments){const section=document.getElementById('tournamentsSection');const container=document.getElementById('tournamentsContainer');container.innerHTML='';tournaments.forEach((t,ti)=>{if(t.hasPippo&&!t._pippoQueueState)t._pippoQueueState=t.pippoQueue?t.pippoQueue.slice():[];const winners=getWinnersList(t);let headerRight=`<div style="display:flex;gap:8px;align-items:center;">${winners.length?`<span class="badge">Vincitore: ${winners.join(', ')}</span>`:''}<button class="ghost sm" onclick="resetTournament(${ti})">Reset ris.​</button></div>`;let html=`<div class="tournament-title">🏆 Torneo ${ti+1} ${headerRight}</div>`;if(t.hasPippo)html+=`<div class="alert info"><strong>⚠️ Numero dispari di giocatori!</strong><br>È presente il giocatore virtuale <strong>Pippo</strong>.<br>Il <strong>partner di Pippo varia</strong> torneo per torneo (qui: <strong>${t.pippoPartner||'—'}</strong>).<br>La sostituzione di Pippo ruota tra gli altri giocatori nei vari match e tornei, e resta fissa una volta assegnata.</div>`;const standingsRows=Object.values(t.standings).sort((a,b)=>(b.W-a.W)||(b.GD-a.GD)||headToHeadCompare(a,b,t.matches)||(a.L-b.L)||teamKey(a.team).localeCompare(teamKey(b.team))).map((row,idx)=>{const isWinner=idx===0&&t.matches.every(m=>m.winner!==0)&&(t.teams.length>=3);const rowClass=isWinner?' style="background:#d4edda;font-weight:bold;"':'';return`<tr${rowClass}><td>${isWinner?'🏆 ':''}${teamKey(row.team)}</td><td><span class="badge win">${row.W}</span></td><td><span class="badge loss">${row.L}</span></td><td>${row.GF}</td><td>${row.GS}</td><td style="font-weight:bold;">${row.GD>0?'+':''}${row.GD}</td></tr>`}).join('');html+=`<div class="standings"><table><thead><tr><th>Coppia</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th></tr></thead><tbody>${standingsRows}</tbody></table></div>`;let currentRound='',partHtml='';t.matches.forEach((match,mi)=>{if(match.round!==currentRound){if(currentRound!=='')partHtml+='</div>';partHtml+=`<div class="round-title">${match.round}</div><div>`;currentRound=match.round}let team1=match.team1.slice(),team2=match.team2.slice();if(t.hasPippo&&(team1.includes('Pippo')||team2.includes('Pippo'))){let pippoSub=match.pippoSub||null;if(!pippoSub){const playing=team1.concat(team2).filter(p=>p!=='Pippo');const q=t._pippoQueueState||[];let idx=q.findIndex(p=>p!==t.pippoPartner&&!playing.includes(p));if(idx===-1)idx=q.findIndex(p=>p!==t.pippoPartner);if(idx>=0){pippoSub=q[idx];q.splice(idx,1);q.push(pippoSub);match.pippoSub=pippoSub}}team1=team1.map(p=>p==='Pippo'?`Pippo (${pippoSub||'—'})`:p);team2=team2.map(p=>p==='Pippo'?`Pippo (${pippoSub||'—'})`:p)}const status=match.winner===1?`✅ Vince: ${teamKey(match.team1)}`:match.winner===2?`✅ Vince: ${teamKey(match.team2)}`:'Da giocare';let scoreDisplay='';if(match.winner!==0&&match.score1!==undefined&&match.score2!==undefined)scoreDisplay=`<div style="font-size:1.6em;font-weight:bold;margin-top:4px;color:#ffd700;">${match.score1} - ${match.score2}</div>`;let gameResultsHtml='';if(match.round==='Meglio dei 3'&&match.gameResults&&match.gameResults.length>0){gameResultsHtml='<div style="margin-top:10px;padding:10px;background:rgba(255,255,255,0.2);border-radius:8px;"><div style="font-weight:bold;margin-bottom:5px;font-size:0.9em;">Risultati singoli game:</div>';match.gameResults.forEach(gr=>{gameResultsHtml+=`<div style="font-size:0.85em;margin:3px 0;">Game ${gr.game}: ${gr.score1}-${gr.score2} (Vince: ${gr.winner===1?teamKey(match.team1):teamKey(match.team2)})</div>`});gameResultsHtml+='</div>'}partHtml+=`<div class="match-card" onclick="openFullscreenMatch(${ti},${mi})"><div class="match-header"><span>Partita ${mi+1}</span><span class="badge">${status}</span></div><div class="teams"><div class="team"><div class="team-name">${team1.join('<br>')}</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;"><div class="vs">VS</div>${scoreDisplay}</div><div class="team"><div class="team-name">${team2.join('<br>')}</div></div></div><div class="match-info">${match.info}</div>${gameResultsHtml}${match.pippoSub?`<div class="pippo-note">🔄 In questa partita Pippo è sostituito da <strong>${match.pippoSub}</strong></div>`:''}<div style="margin-top:10px;text-align:center;font-size:0.9em;opacity:0.8;">👆 Tap per aprire schermata di gioco</div></div>`});partHtml+='</div>';html+=partHtml;container.insertAdjacentHTML('beforeend',html)});section.style.display='block'}
 
-    function removeGoal(team) {
-      if (team === 1 && currentMatchState.score1 > 0) {
-        currentMatchState.score1--;
-        document.getElementById('fsScore1').textContent = currentMatchState.score1;
-      } else if (team === 2 && currentMatchState.score2 > 0) {
-        currentMatchState.score2--;
-        document.getElementById('fsScore2').textContent = currentMatchState.score2;
-      }
-      
-      // Aggiorna la classifica con i punteggi correnti
-      updateFullscreenStandings(currentMatchState.ti, currentMatchState.mi);
-      
-      checkWinner();
-    }
-
-    function checkWinner() {
-      const { score1, score2, goalsToWin } = currentMatchState;
-      
-      if (score1 >= goalsToWin || score2 >= goalsToWin) {
-        document.getElementById('fsConfirmArea').style.display = 'flex';
-        if (score1 >= goalsToWin) {
-          document.getElementById('fsTeam1').classList.add('winner');
-          document.getElementById('fsTeam2').classList.remove('winner');
-        } else {
-          document.getElementById('fsTeam2').classList.add('winner');
-          document.getElementById('fsTeam1').classList.remove('winner');
-        }
-      } else {
-        document.getElementById('fsConfirmArea').style.display = 'none';
-        document.getElementById('fsTeam1').classList.remove('winner');
-        document.getElementById('fsTeam2').classList.remove('winner');
-      }
-    }
-
-    function cancelWin() {
-      document.getElementById('fsConfirmArea').style.display = 'none';
-      document.getElementById('fsTeam1').classList.remove('winner');
-      document.getElementById('fsTeam2').classList.remove('winner');
-    }
-
-    function confirmMatch() {
-      const { ti, mi, score1, score2, goalsToWin, bestOf3State, swappedColors } = currentMatchState;
-      
-      if (score1 < goalsToWin && score2 < goalsToWin) {
-        alert('Nessuna squadra ha raggiunto i goal necessari!');
-        return;
-      }
-      
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      
-      // Determina i punteggi corretti considerando lo swap
-      let finalScore1 = score1;
-      let finalScore2 = score2;
-      
-      // Se i colori sono stati swappati, inverti i punteggi per salvarli correttamente
-      if (swappedColors && !bestOf3State) {
-        finalScore1 = score2;
-        finalScore2 = score1;
-      }
-      
-      // Determina chi ha vinto questo game (considerando swap sides per bestOf3)
-      let gameWinner1 = score1 >= goalsToWin;
-      if (bestOf3State && bestOf3State.swapSides) {
-        gameWinner1 = !gameWinner1; // Se i lati sono swappati, inverti il vincitore
-      }
-      
-      // Se è "Meglio dei 3", gestisci la logica delle partite multiple
-      if (bestOf3State) {
-        // Salva il risultato di questo game
-        if (!m.gameResults) m.gameResults = [];
-        m.gameResults.push({
-          game: bestOf3State.currentGame,
-          score1: gameWinner1 ? (score1 >= goalsToWin ? score1 : score2) : (score1 >= goalsToWin ? score2 : score1),
-          score2: gameWinner1 ? (score1 >= goalsToWin ? score2 : score1) : (score1 >= goalsToWin ? score1 : score2),
-          winner: gameWinner1 ? 1 : 2
-        });
-        
-        if (gameWinner1) {
-          bestOf3State.gamesWon1++;
-        } else {
-          bestOf3State.gamesWon2++;
-        }
-        
-        // Controlla se qualcuno ha vinto il match (2 partite su 3)
-        if (bestOf3State.gamesWon1 >= 2 || bestOf3State.gamesWon2 >= 2) {
-          // Fine del "Meglio dei 3" - determina il vincitore finale
-          const finalWinner = bestOf3State.gamesWon1 >= 2 ? 1 : 2;
-          
-          // Calcola i punteggi totali sommando tutti i game
-          let totalScore1 = 0, totalScore2 = 0;
-          m.gameResults.forEach(gr => {
-            totalScore1 += gr.score1;
-            totalScore2 += gr.score2;
-          });
-          m.score1 = totalScore1;
-          m.score2 = totalScore2;
-          
-          recordResult(ti, mi, finalWinner);
-          
-          // Mostra schermata di vittoria
-          showBestOf3Victory(ti, mi, finalWinner);
-        } else {
-          // Continua con il prossimo game, cambiando campo
-          bestOf3State.currentGame++;
-          bestOf3State.swapSides = !bestOf3State.swapSides;
-          
-          // Reset punteggi per il prossimo game
-          currentMatchState.score1 = 0;
-          currentMatchState.score2 = 0;
-          
-          // Recupera i nomi delle squadre originali
-          let team1 = m.team1.slice();
-          let team2 = m.team2.slice();
-          
-          if (t.hasPippo && (team1.includes('Pippo') || team2.includes('Pippo'))) {
-            let pippoSub = m.pippoSub;
-            team1 = team1.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-            team2 = team2.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-          }
-          
-          // Aggiorna UI per il prossimo game
-          updateFullscreenUI(ti, mi, team1, team2);
-        }
-      } else {
-        // Match normale (non "Meglio dei 3")
-        
-        // Determina il vincitore considerando lo swap
-        let winner;
-        if (swappedColors) {
-          // Se i colori sono swappati, il vincitore visivo (score1 >= goalsToWin) è in realtà team2
-          winner = score1 >= goalsToWin ? 2 : 1;
-        } else {
-          winner = score1 >= goalsToWin ? 1 : 2;
-        }
-        
-        // Salva ENTRAMBE le squadre e i loro colori (per il cambio campo successivo)
-        if (!t.lastMatchColors) {
-          t.lastMatchColors = {};
-        }
-        
-        const team1Key = teamKey(m.team1);
-        const team2Key = teamKey(m.team2);
-        
-        // Determina i colori finali considerando lo swap
-        let team1FinalColor, team2FinalColor;
-        if (swappedColors) {
-          // Con swap: team1 è blu (destra), team2 è rosso (sinistra)
-          team1FinalColor = 'blue';
-          team2FinalColor = 'red';
-        } else {
-          // Senza swap: team1 è rosso (sinistra), team2 è blu (destra)
-          team1FinalColor = 'red';
-          team2FinalColor = 'blue';
-        }
-        
-        // Salva i colori di ENTRAMBE le squadre
-        t.lastMatchColors[team1Key] = team1FinalColor;
-        t.lastMatchColors[team2Key] = team2FinalColor;
-        
-        console.log('Fine match - Colori salvati:', {
-          [team1Key]: team1FinalColor,
-          [team2Key]: team2FinalColor
-        });
-        
-        // Salva i punteggi nel match (nella posizione corretta, NON swappata)
-        m.score1 = finalScore1;
-        m.score2 = finalScore2;
-        
-        recordResult(ti, mi, winner);
-        
-        // Check if there's a next match
-        const nextMatchIndex = mi + 1;
-        
-        // Controlla se questo era l'ultimo match del torneo
-        if (nextMatchIndex >= t.matches.length) {
-          // Era l'ultimo match - mostra schermata vincitore per tornei con 3+ squadre
-          if (t.teams.length >= 3) {
-            const winners = getWinnersList(t);
-            if (winners.length > 0) {
-              showTournamentVictory(ti, winners[0]);
-              return; // Non chiudere subito
-            }
-          }
-        }
-        
-        closeFullscreenMatch();
-        
-        if (nextMatchIndex < t.matches.length) {
-          // Auto-open next match after a short delay
-          setTimeout(() => {
-            openFullscreenMatch(ti, nextMatchIndex);
-          }, 500);
-        }
-      }
-    }
-    
-    function showTournamentVictory(ti, winnerName) {
-      // Nascondi i quadrati di gioco, standings e mostra messaggio di vittoria
-      document.querySelector('.fs-playing-area').style.display = 'none';
-      document.getElementById('fsStandingsArea').style.display = 'none';
-      document.getElementById('fsConfirmArea').style.display = 'none';
-      
-      const victoryMessage = document.createElement('div');
-      victoryMessage.id = 'victoryMessage';
-      victoryMessage.style.cssText = `
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        text-align: center;
-      `;
-      victoryMessage.innerHTML = `
-        <div style="font-size: 3em; margin-bottom: 20px;">🏆</div>
-        <div style="font-size: 2em; font-weight: bold; color: white; margin-bottom: 30px;">
-          Vincitori del Torneo!
-        </div>
-        <div style="font-size: 1.8em; font-weight: bold; color: #ffd700; margin-bottom: 40px;">
-          ${winnerName}
-        </div>
-        <button class="fs-confirm-btn" onclick="closeTournamentVictory()">
-          ✓ Chiudi e Torna ai Tornei
-        </button>
-      `;
-      
-      document.getElementById('matchFullscreen').appendChild(victoryMessage);
-    }
-    
-    function closeTournamentVictory() {
-      const victoryMessage = document.getElementById('victoryMessage');
-      if (victoryMessage) {
-        victoryMessage.remove();
-      }
-      document.querySelector('.fs-playing-area').style.display = 'flex';
-      document.getElementById('fsStandingsArea').style.display = 'flex';
-      closeFullscreenMatch();
-    }
-    
-    function showBestOf3Victory(ti, mi, winner) {
-      const t = window.__tournaments[ti];
-      const m = t.matches[mi];
-      const winnerTeam = winner === 1 ? m.team1 : m.team2;
-      const winnerName = teamKey(winnerTeam);
-      
-      // Nascondi i quadrati di gioco, standings e mostra messaggio di vittoria
-      document.querySelector('.fs-playing-area').style.display = 'none';
-      document.getElementById('fsStandingsArea').style.display = 'none';
-      document.getElementById('fsConfirmArea').style.display = 'none';
-      
-      const victoryMessage = document.createElement('div');
-      victoryMessage.id = 'victoryMessage';
-      victoryMessage.style.cssText = `
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        text-align: center;
-      `;
-      victoryMessage.innerHTML = `
-        <div style="font-size: 3em; margin-bottom: 20px;">🏆</div>
-        <div style="font-size: 2em; font-weight: bold; color: white; margin-bottom: 30px;">
-          Vincitori del Torneo!
-        </div>
-        <div style="font-size: 1.8em; font-weight: bold; color: #ffd700; margin-bottom: 40px;">
-          ${winnerName}
-        </div>
-        <button class="fs-confirm-btn" onclick="closeBestOf3Victory(${ti}, ${mi})">
-          ✓ Chiudi e Torna ai Tornei
-        </button>
-      `;
-      
-      document.getElementById('matchFullscreen').appendChild(victoryMessage);
-    }
-    
-    function closeBestOf3Victory(ti, mi) {
-      const victoryMessage = document.getElementById('victoryMessage');
-      if (victoryMessage) {
-        victoryMessage.remove();
-      }
-      document.querySelector('.fs-playing-area').style.display = 'flex';
-      document.getElementById('fsStandingsArea').style.display = 'flex';
-      closeFullscreenMatch();
-      
-      // Check if there's a next match in other tournaments
-      const t = window.__tournaments[ti];
-      const nextMatchIndex = mi + 1;
-      
-      if (nextMatchIndex < t.matches.length) {
-        setTimeout(() => {
-          openFullscreenMatch(ti, nextMatchIndex);
-        }, 500);
-      }
-    }
-
-    // ===== Render =====
-    function renderSequentialTournaments(tournaments) {
-      const section = document.getElementById('tournamentsSection');
-      const container = document.getElementById('tournamentsContainer');
-      container.innerHTML = '';
-      
-      tournaments.forEach((t, ti) => {
-        if (t.hasPippo && !t._pippoQueueState) {
-          t._pippoQueueState = t.pippoQueue ? t.pippoQueue.slice() : [];
-        }
-        
-        const winners = getWinnersList(t);
-        let headerRight = `<div style="display:flex; gap:8px; align-items:center;">${winners.length ? `<span class=\"badge\">Vincitore: ${winners.join(', ')}</span>` : ''}<button class=\"ghost sm\" onclick=\"resetTournament(${ti})\">Reset ris.​</button></div>`;
-        let html = `<div class="tournament-title">🏆 Torneo ${ti+1} ${headerRight}</div>`;
-        
-        if (t.hasPippo) {
-          html += `<div class="alert info"><strong>⚠️ Numero dispari di giocatori!</strong><br>È presente il giocatore virtuale <strong>Pippo</strong>.<br>Il <strong>partner di Pippo varia</strong> torneo per torneo (qui: <strong>${t.pippoPartner || '—'}</strong>).<br>La sostituzione di Pippo ruota tra gli altri giocatori nei vari match e tornei, e resta fissa una volta assegnata.</div>`;
-        }
-        
-        const standingsRows = Object.values(t.standings)
-          .sort((a,b) => (b.W - a.W) || (b.GD - a.GD) || headToHead(a, b, t.matches) || (a.L - b.L) || teamKey(a.team).localeCompare(teamKey(b.team)))
-          .map((row, idx) => {
-            const isWinner = idx === 0 && t.matches.every(m => m.winner !== 0) && (t.teams.length >= 3);
-            const rowClass = isWinner ? ' style="background: #d4edda; font-weight: bold;"' : '';
-            return `<tr${rowClass}><td>${isWinner ? '🏆 ' : ''}${teamKey(row.team)}</td><td><span class=\"badge win\">${row.W}</span></td><td><span class=\"badge loss\">${row.L}</span></td><td>${row.GF}</td><td>${row.GS}</td><td style="font-weight: bold;">${row.GD > 0 ? '+' : ''}${row.GD}</td></tr>`;
-          })
-          .join('');
-        html += `<div class="standings"><table><thead><tr><th>Coppia</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th></tr></thead><tbody>${standingsRows}</tbody></table></div>`;
-        
-        let currentRound = '';
-        let partHtml = '';
-        
-        t.matches.forEach((match, mi) => {
-          if (match.round !== currentRound) {
-            if (currentRound !== '') partHtml += '</div>';
-            partHtml += `<div class="round-title">${match.round}</div><div>`;
-            currentRound = match.round;
-          }
-          
-          let team1 = match.team1.slice();
-          let team2 = match.team2.slice();
-          
-          if (t.hasPippo && (team1.includes('Pippo') || team2.includes('Pippo'))) {
-            let pippoSub = match.pippoSub || null;
-            if (!pippoSub) {
-              const playing = team1.concat(team2).filter(p => p !== 'Pippo');
-              const q = t._pippoQueueState || [];
-              let idx = q.findIndex(p => p !== t.pippoPartner && !playing.includes(p));
-              if (idx === -1) idx = q.findIndex(p => p !== t.pippoPartner);
-              if (idx >= 0) {
-                pippoSub = q[idx];
-                q.splice(idx,1);
-                q.push(pippoSub);
-                match.pippoSub = pippoSub;
-              }
-            }
-            team1 = team1.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-            team2 = team2.map(p => p === 'Pippo' ? `Pippo (${pippoSub || '—'})` : p);
-          }
-          
-          const status = match.winner === 1 ? `✅ Vince: ${teamKey(match.team1)}` : match.winner === 2 ? `✅ Vince: ${teamKey(match.team2)}` : 'Da giocare';
-          
-          // Prepara il risultato da mostrare
-          let scoreDisplay = '';
-          if (match.winner !== 0 && match.score1 !== undefined && match.score2 !== undefined) {
-            scoreDisplay = `<div style="font-size: 1.6em; font-weight: bold; margin-top: 4px; color: #ffd700;">${match.score1} - ${match.score2}</div>`;
-          }
-          
-          // Aggiungi i risultati dei singoli game se è "Meglio dei 3"
-          let gameResultsHtml = '';
-          if (match.round === 'Meglio dei 3' && match.gameResults && match.gameResults.length > 0) {
-            gameResultsHtml = '<div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px;">';
-            gameResultsHtml += '<div style="font-weight: bold; margin-bottom: 5px; font-size: 0.9em;">Risultati singoli game:</div>';
-            match.gameResults.forEach(gr => {
-              const winnerText = gr.winner === 1 ? teamKey(match.team1) : teamKey(match.team2);
-              gameResultsHtml += `<div style="font-size: 0.85em; margin: 3px 0;">Game ${gr.game}: ${gr.score1}-${gr.score2} (Vince: ${winnerText})</div>`;
-            });
-            gameResultsHtml += '</div>';
-          }
-          
-          partHtml += `<div class="match-card" onclick="openFullscreenMatch(${ti}, ${mi})">
-            <div class="match-header">
-              <span>Partita ${mi + 1}</span>
-              <span class="badge">${status}</span>
-            </div>
-            <div class="teams">
-              <div class="team">
-                <div class="team-name">${team1.join('<br>')}</div>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div class="vs">VS</div>
-                ${scoreDisplay}
-              </div>
-              <div class="team">
-                <div class="team-name">${team2.join('<br>')}</div>
-              </div>
-            </div>
-            <div class="match-info">${match.info}</div>
-            ${gameResultsHtml}
-            ${match.pippoSub ? `<div class=\"pippo-note\">🔄 In questa partita Pippo è sostituito da <strong>${match.pippoSub}</strong></div>` : ''}
-            <div style="margin-top: 10px; text-align: center; font-size: 0.9em; opacity: 0.8;">
-              👆 Tap per aprire schermata di gioco
-            </div>
-          </div>`;
-        });
-        
-        partHtml += '</div>';
-        html += partHtml;
-        container.insertAdjacentHTML('beforeend', html);
-      });
-      
-      section.style.display = 'block';
-    }
-
-    // ===== Init =====
-    loadData();
-    renderPlayers();
-    renderTournamentSelection();
+    loadData();renderPlayers();renderTournamentSelection();
   </script>
 </body>
 </html>
