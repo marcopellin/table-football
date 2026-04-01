@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚽ Generatore Tornei (v5.1)</title>
+  <title>Generatore Tornei (v6.0)</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -95,17 +95,63 @@
     .fs-cancel-btn { padding: 12px 40px; font-size: 1.2em; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 12px; cursor: pointer; font-weight: bold; }
     @media (max-width: 480px) { body { padding: 12px; } .container { padding: 16px; } .input-group { gap: 8px; } .players-list { grid-template-columns: 1fr; gap: 8px; } .tournament-selection { grid-template-columns: 1fr; gap: 8px; } .match-card { padding: 14px; } .teams { flex-direction: column; align-items: stretch; } .vs { margin: 6px 0; text-align: center; } .team { width: 100%; text-align: center; } .fs-score-area { font-size: 5em; } .fs-team-name { font-size: 1.1em; } .fs-undo-btn { width: 40px; height: 40px; font-size: 18px; } }
     @media (orientation: landscape) { .fs-score-area { font-size: 10em; } }
+    .global-stats-overlay { position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);z-index:9998;display:none;flex-direction:column; }
+    .global-stats-overlay.active { display:flex; }
+    .gs-header { padding:15px 20px;background:rgba(0,0,0,0.3);color:white;display:flex;justify-content:space-between;align-items:center; }
+    .gs-header h2 { color:#ffd700;margin:0;border:none;padding:0;font-size:1.3em; }
+    .gs-header-btns { display:flex;gap:10px; }
+    .gs-header-btns button { padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;border:2px solid white;background:rgba(255,255,255,0.15);color:white; }
+    .gs-header-btns button:hover { background:rgba(255,255,255,0.25);transform:none;box-shadow:none; }
+    .gs-header-btns button.gs-reset { border-color:#e74c3c;color:#ff6b6b; }
+    .gs-header-btns button.gs-reset:hover { background:rgba(231,76,60,0.3); }
+    .gs-body { flex:1;overflow-y:auto;padding:20px; }
+    .gs-table { width:100%;max-width:600px;margin:0 auto;border-collapse:collapse;background:rgba(255,255,255,0.95);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+    .gs-table th { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:12px 10px;font-size:0.95em;text-align:left;font-weight:600; }
+    .gs-table td { padding:12px 10px;border-bottom:1px solid #eee;font-size:0.95em; }
+    .gs-table tr:last-child td { border-bottom:none; }
+    .gs-table tr:nth-child(even) { background:rgba(0,0,0,0.03); }
+    .gs-table .gs-pos { font-weight:bold;color:#764ba2;width:40px; }
+    .gs-table .gs-name { font-weight:600; }
+    .gs-table .gs-pct { font-weight:bold;color:#667eea;font-size:1.1em; }
+    .gs-table tbody tr:first-child td { background:rgba(255,215,0,0.15); }
+    .gs-table tbody tr:nth-child(2) td { background:rgba(192,192,192,0.12); }
+    .gs-table tbody tr:nth-child(3) td { background:rgba(205,127,50,0.1); }
+    .gs-empty { text-align:center;color:rgba(255,255,255,0.7);padding:60px 20px;font-size:1.2em; }
+    .gs-btn-open { background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#ffd700;border:2px solid #ffd700;font-size:15px;font-weight:700; }
+    .gs-btn-open:hover { background:linear-gradient(135deg,#0f3460,#1a1a2e);transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,215,0,0.3); }
+    /* MANUAL TEAM BUILDER */
+    .manual-builder { margin-top:15px;display:none; }
+    .manual-builder.active { display:block; }
+    .manual-builder h3 { color:#764ba2;margin-bottom:12px;font-size:1.1em; }
+    .manual-team-slot { display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:12px;background:#f8f9fa;border-radius:10px;border-left:4px solid #667eea;flex-wrap:wrap; }
+    .manual-team-slot .slot-label { font-weight:700;color:#667eea;min-width:90px;font-size:0.95em; }
+    .manual-team-slot select { padding:8px 12px;border:2px solid #ddd;border-radius:8px;font-size:15px;background:white;cursor:pointer;flex:1;min-width:120px; }
+    .manual-team-slot select:focus { outline:none;border-color:#667eea; }
+    .manual-team-slot .slot-plus { font-weight:bold;color:#999;font-size:1.2em; }
+    .manual-team-slot .slot-pippo { padding:8px 12px;background:#ffe5b4;border-radius:8px;font-weight:600;color:#ff9800;flex:1;min-width:120px;font-size:15px;border:2px solid #ff9800; }
+    .manual-builder-actions { display:flex;gap:10px;margin-top:15px;flex-wrap:wrap; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚽ Generatore Tornei (v5.1)</h1>
+    <h1>Generatore Tornei (v6.0)</h1>
+    <div style="text-align:center;margin-bottom:20px;">
+      <button class="gs-btn-open" onclick="openGlobalStats()">📊 Classifica Globale Giocatori</button>
+    </div>
     <div class="section">
       <h2>Seleziona Giocatori</h2>
       <div class="tournament-selection" id="tournamentSelection"></div>
       <div class="grid-2" style="margin-top: 12px;">
-        <button id="btnGen" onclick="createSequentialTournaments(4)">Genera 4 Tornei</button>
-        <button class="success" onclick="createSequentialTournaments(1)">Genera 1 Torneo</button>
+        <button id="btnGen" onclick="createSequentialTournaments(4)">🎲 Genera Tornei Random</button>
+        <button class="success" onclick="openManualTeamBuilder()">✏️ Genera Torneo Manuale</button>
+      </div>
+      <div class="manual-builder" id="manualBuilder">
+        <h3>✏️ Componi le squadre</h3>
+        <div id="manualTeamSlots"></div>
+        <div class="manual-builder-actions">
+          <button class="success" onclick="createManualTournament()">✓ Crea Torneo</button>
+          <button class="ghost" onclick="closeManualTeamBuilder()">✗ Annulla</button>
+        </div>
       </div>
     </div>
     <div class="section" id="tournamentsSection" style="display:none;">
@@ -152,6 +198,19 @@
       <button class="fs-cancel-btn" onclick="cancelWin()">✗ Annulla</button>
     </div>
   </div>
+
+  <!-- GLOBAL STATS OVERLAY -->
+  <div class="global-stats-overlay" id="globalStatsOverlay">
+    <div class="gs-header">
+      <h2>📊 Classifica Globale Giocatori</h2>
+      <div class="gs-header-btns">
+        <button class="gs-reset" onclick="resetGlobalStats()">🗑 Reset</button>
+        <button onclick="closeGlobalStats()">Chiudi</button>
+      </div>
+    </div>
+    <div class="gs-body" id="gsBody"></div>
+  </div>
+
   <script>
     let players = ['Marco','Alessio','Alessandro','Andrea','Michele','Enrico','Martin','Massimo','Karim','Vincenzo'];
     players.sort();
@@ -159,6 +218,77 @@
     let lastMatchTeams = {team1:null,team2:null};
     function saveData(){localStorage.setItem('players',JSON.stringify(players))}
     function loadData(){const s=localStorage.getItem('players');if(s){try{players=JSON.parse(s)}catch(e){console.error('Error loading data',e)}}}
+
+    // ===== GLOBAL PLAYER STATS =====
+    function loadGlobalStats(){const s=localStorage.getItem('globalPlayerStats');if(s){try{return JSON.parse(s)}catch(e){return{}}}return{}}
+    function saveGlobalStats(stats){localStorage.setItem('globalPlayerStats',JSON.stringify(stats))}
+
+    function getMatchRealPlayers(t,m){
+      // Restituisce i nomi reali dei giocatori, risolvendo Pippo con il suo sostituto
+      function resolve(team){
+        return team.map(p=>{
+          if(p==='Pippo') return m.pippoSub||null;
+          return p;
+        }).filter(p=>p!==null);
+      }
+      return {team1:resolve(m.team1),team2:resolve(m.team2)};
+    }
+
+    function updateGlobalPlayerStats(ti,mi,winnerSide){
+      const t=window.__tournaments[ti];
+      const m=t.matches[mi];
+      const real=getMatchRealPlayers(t,m);
+      const winners=winnerSide===1?real.team1:real.team2;
+      const losers=winnerSide===1?real.team2:real.team1;
+      const stats=loadGlobalStats();
+      winners.forEach(p=>{if(!stats[p])stats[p]={W:0,L:0};stats[p].W++});
+      losers.forEach(p=>{if(!stats[p])stats[p]={W:0,L:0};stats[p].L++});
+      saveGlobalStats(stats);
+    }
+
+    function openGlobalStats(){renderGlobalStats();document.getElementById('globalStatsOverlay').classList.add('active')}
+    function closeGlobalStats(){document.getElementById('globalStatsOverlay').classList.remove('active')}
+
+    function renderGlobalStats(){
+      const stats=loadGlobalStats();
+      const body=document.getElementById('gsBody');
+      const MIN_GAMES=10;
+      const entries=Object.entries(stats).map(([name,s])=>{
+        const tot=s.W+s.L;
+        const pct=tot>0?Math.round((s.W/tot)*100):0;
+        return {name,W:s.W,L:s.L,tot,pct,qualified:tot>=MIN_GAMES};
+      });
+      if(entries.length===0){body.innerHTML='<div class="gs-empty">📭 Nessuna statistica ancora.<br>Gioca qualche partita per vedere la classifica!</div>';return}
+      entries.sort((a,b)=>(b.pct-a.pct)||(b.tot-a.tot)||(b.W-a.W)||(a.L-b.L)||a.name.localeCompare(b.name));
+      const medals=['🥇','🥈','🥉'];
+      let html='<table class="gs-table"><thead><tr><th style="width:40px">#</th><th>Giocatore</th><th>V</th><th>S</th><th>Tot</th><th>%</th></tr></thead><tbody>';
+      let officialPos=0;
+      entries.forEach((e)=>{
+        if(e.qualified){
+          officialPos++;
+          const medal=officialPos<=3?medals[officialPos-1]+' ':'';
+          html+=`<tr><td class="gs-pos">${medal}${officialPos}</td><td class="gs-name">${e.name}</td><td><span class="badge win">${e.W}</span></td><td><span class="badge loss">${e.L}</span></td><td>${e.tot}</td><td class="gs-pct">${e.pct}%</td></tr>`;
+        }else{
+          html+=`<tr style="opacity:0.45"><td class="gs-pos">-</td><td class="gs-name">${e.name}</td><td><span class="badge win">${e.W}</span></td><td><span class="badge loss">${e.L}</span></td><td>${e.tot}</td><td class="gs-pct">${e.pct}%</td></tr>`;
+        }
+      });
+      html+='</tbody></table>';
+      html+='<div style="text-align:center;margin-top:12px;color:rgba(255,255,255,0.4);font-size:0.85em;">Minimo '+MIN_GAMES+' partite per la classifica ufficiale</div>';
+      body.innerHTML=html;
+    }
+
+    let _resetConfirmPending=false;
+    function resetGlobalStats(){
+      if(!_resetConfirmPending){
+        _resetConfirmPending=true;
+        if(!confirm('Vuoi davvero cancellare tutte le statistiche globali?')){_resetConfirmPending=false;return}
+        if(!confirm('Sei sicuro? Questa azione è irreversibile!')){_resetConfirmPending=false;return}
+        localStorage.removeItem('globalPlayerStats');
+        renderGlobalStats();
+        _resetConfirmPending=false;
+      }
+    }
+
     function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
     function teamKey(team){return team.filter(p=>p!=='Pippo').join(' + ')}
     function pairKey(a,b){const s=[a,b].sort();return`${s[0]}|${s[1]}`}
@@ -180,6 +310,143 @@
     function renderPlayers(){document.getElementById('playersList').innerHTML=players.map(p=>`<div class="player-item"><span>${p}</span><button class="danger sm" onclick="removePlayer('${p}')">Rimuovi</button></div>`).join('')}
     function renderTournamentSelection(){document.getElementById('tournamentSelection').innerHTML=players.map(p=>`<label class="player-checkbox"><input type="checkbox" class="player-select" value="${p}" />${p}</label>`).join('')}
 
+    // ===== MANUAL TEAM BUILDER =====
+    function openManualTeamBuilder(){
+      const selected=Array.from(document.querySelectorAll('.player-select:checked')).map(cb=>cb.value);
+      if(selected.length<4){alert('Seleziona almeno 4 giocatori!');return}
+      window.__manualSelected=selected;
+      document.getElementById('manualBuilder').classList.add('active');
+      renderManualSlots();
+    }
+    function closeManualTeamBuilder(){document.getElementById('manualBuilder').classList.remove('active')}
+
+    function renderManualSlots(){
+      const selected=window.__manualSelected;
+      const isOdd=selected.length%2!==0;
+      const numTeams=Math.ceil(selected.length/2);
+      const container=document.getElementById('manualTeamSlots');
+
+      let html='';
+      for(let i=0;i<numTeams;i++){
+        const isLastOdd=isOdd&&i===numTeams-1;
+        html+=`<div class="manual-team-slot">
+          <span class="slot-label">Squadra ${i+1}</span>
+          <select id="manSlot${i}_0" onchange="onManualSlotChange()"><option value="">— Giocatore 1 —</option></select>
+          <span class="slot-plus">+</span>`;
+        if(isLastOdd){
+          html+=`<span class="slot-pippo">🤖 Pippo</span>`;
+        }else{
+          html+=`<select id="manSlot${i}_1" onchange="onManualSlotChange()"><option value="">— Giocatore 2 —</option></select>`;
+        }
+        html+=`</div>`;
+      }
+      container.innerHTML=html;
+      populateManualDropdowns();
+    }
+
+    function getManualAssigned(){
+      const selected=window.__manualSelected;
+      const isOdd=selected.length%2!==0;
+      const numTeams=Math.ceil(selected.length/2);
+      const assigned={};
+      for(let i=0;i<numTeams;i++){
+        const s0=document.getElementById(`manSlot${i}_0`);
+        if(s0&&s0.value)assigned[`${i}_0`]=s0.value;
+        const isLastOdd=isOdd&&i===numTeams-1;
+        if(!isLastOdd){
+          const s1=document.getElementById(`manSlot${i}_1`);
+          if(s1&&s1.value)assigned[`${i}_1`]=s1.value;
+        }
+      }
+      return assigned;
+    }
+
+    function populateManualDropdowns(){
+      const selected=window.__manualSelected;
+      const isOdd=selected.length%2!==0;
+      const numTeams=Math.ceil(selected.length/2);
+      const assigned=getManualAssigned();
+      const usedValues=new Set(Object.values(assigned));
+
+      for(let i=0;i<numTeams;i++){
+        const s0=document.getElementById(`manSlot${i}_0`);
+        if(s0){
+          const cur=assigned[`${i}_0`]||'';
+          let opts='<option value="">— Giocatore 1 —</option>';
+          selected.forEach(p=>{
+            if(p===cur||!usedValues.has(p))opts+=`<option value="${p}"${p===cur?' selected':''}>${p}</option>`;
+          });
+          s0.innerHTML=opts;
+        }
+        const isLastOdd=isOdd&&i===numTeams-1;
+        if(!isLastOdd){
+          const s1=document.getElementById(`manSlot${i}_1`);
+          if(s1){
+            const cur=assigned[`${i}_1`]||'';
+            let opts='<option value="">— Giocatore 2 —</option>';
+            selected.forEach(p=>{
+              if(p===cur||!usedValues.has(p))opts+=`<option value="${p}"${p===cur?' selected':''}>${p}</option>`;
+            });
+            s1.innerHTML=opts;
+          }
+        }
+      }
+    }
+
+    function onManualSlotChange(){populateManualDropdowns()}
+
+    function createManualTournament(){
+      const selected=window.__manualSelected;
+      const isOdd=selected.length%2!==0;
+      const numTeams=Math.ceil(selected.length/2);
+      const assigned=getManualAssigned();
+      const usedPlayers=new Set(Object.values(assigned));
+
+      // Verifica che tutti i giocatori siano assegnati
+      const unassigned=selected.filter(p=>!usedPlayers.has(p));
+      if(unassigned.length>0){alert(`Giocatori non assegnati: ${unassigned.join(', ')}.\nCompletare tutte le squadre!`);return}
+
+      // Verifica che non ci siano slot vuoti
+      for(let i=0;i<numTeams;i++){
+        if(!assigned[`${i}_0`]){alert(`Squadra ${i+1}: manca il giocatore 1!`);return}
+        const isLastOdd=isOdd&&i===numTeams-1;
+        if(!isLastOdd&&!assigned[`${i}_1`]){alert(`Squadra ${i+1}: manca il giocatore 2!`);return}
+      }
+
+      // Costruisci le squadre
+      const teams=[];
+      let pippoPartner=null;
+      for(let i=0;i<numTeams;i++){
+        const isLastOdd=isOdd&&i===numTeams-1;
+        if(isLastOdd){
+          teams.push([assigned[`${i}_0`],'Pippo']);
+          pippoPartner=assigned[`${i}_0`];
+        }else{
+          teams.push([assigned[`${i}_0`],assigned[`${i}_1`]]);
+        }
+      }
+
+      // Crea il torneo con le squadre manuali
+      const matches=buildMatches(teams);
+      matches.forEach(mm=>mm.pippoSub=null);
+      const pippoQueue=isOdd?shuffle(selected.filter(p=>p!==pippoPartner)):[];
+      const standings=initStandings(teams);
+      const tournament={teams,matches,hasPippo:isOdd,pippoPartner,standings,pippoQueue,_pippoQueueState:null,colorPreference:{}};
+
+      if(!window.__tournaments)window.__tournaments=[];
+      window.__tournaments.push(tournament);
+      window.__selectedPlayers=selected;
+      renderSequentialTournaments(window.__tournaments);
+
+      closeManualTeamBuilder();
+      document.getElementById('tournamentsSection').style.display='block';
+
+      // Sposta la sezione "Inserisci Giocatori" in fondo
+      const container=document.querySelector('.container');
+      const playersSection=document.getElementById('playersSection');
+      if(container&&playersSection)container.appendChild(playersSection);
+    }
+
     function bestPairing(base,historyPairs,tournamentIndex){const candidates=[];for(let attempt=0;attempt<5000;attempt++){const shuffled=shuffle(base);const pairs=[];for(let i=0;i<shuffled.length;i+=2){if(i+1<shuffled.length)pairs.push([shuffled[i],shuffled[i+1]]);else pairs.push([shuffled[i]])}const newPairs=pairs.filter(([a,b])=>b&&!historyPairs.has(pairKey(a,b)));const score=newPairs.length*1000-pairs.filter(([a,b])=>b&&historyPairs.has(pairKey(a,b))).length*500;candidates.push({pairs,score})}candidates.sort((a,b)=>b.score-a.score);const best=candidates[0].pairs;const flipBias=(tournamentIndex%2===1)?0.7:0.3;return best.map(team=>(Math.random()<flipBias?[team[1],team[0]]:team))}
 
     function buildMatches(teams){const numTeams=teams.length;const goalsToWin=(numTeams===2)?10:5;const matches=[];if(numTeams===2){matches.push({round:'Meglio dei 3',team1:teams[0],team2:teams[1],info:`Primo a vincere 2 partite su 3 (ogni partita a ${goalsToWin} goal)`,winner:0,goalsToWin,gameResults:[],score1:0,score2:0})}else if(numTeams===3){matches.push({round:"Girone all'italiana",team1:teams[0],team2:teams[1],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:"Girone all'italiana",team1:teams[2],team2:teams[0],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:"Girone all'italiana",team1:teams[1],team2:teams[2],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0})}else if(numTeams===4){matches.push({round:'Semifinale 1',team1:teams[0],team2:teams[1],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'Semifinale 2',team1:teams[2],team2:teams[3],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'Finale 3°/4° posto',team1:['Perdente SF1'],team2:['Perdente SF2'],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});matches.push({round:'FINALE 1°/2° posto',team1:['Vincente SF1'],team2:['Vincente SF2'],info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0})}else{const orderedMatches=[];const teamsCopy=teams.slice();const allPairs=[];for(let i=0;i<teamsCopy.length;i++)for(let j=i+1;j<teamsCopy.length;j++)allPairs.push([teamsCopy[i],teamsCopy[j]]);const used=new Set();const lastSide={};while(orderedMatches.length<allPairs.length){let bestMatch=null,bestScore=-1;for(const pair of allPairs){const pk=`${teamKey(pair[0])}-${teamKey(pair[1])}`;if(used.has(pk))continue;let score=100;if(orderedMatches.length>0){const last=orderedMatches[orderedMatches.length-1];const t0k=teamKey(pair[0]),t1k=teamKey(pair[1]);const lt1k=teamKey(last.team1),lt2k=teamKey(last.team2);if(t0k===lt1k||t0k===lt2k)score-=50;if(t1k===lt1k||t1k===lt2k)score-=50;if((t0k===lt1k||t0k===lt2k)&&lastSide[t0k]==='left')score+=25;if((t1k===lt1k||t1k===lt2k)&&lastSide[t1k]==='right')score+=25}if(score>bestScore){bestScore=score;bestMatch=pair}}if(bestMatch){let t1=bestMatch[0],t2=bestMatch[1];if(orderedMatches.length>0){const last=orderedMatches[orderedMatches.length-1];const t1k=teamKey(t1),t2k=teamKey(t2);const lt1k=teamKey(last.team1),lt2k=teamKey(last.team2);if(t1k===lt1k&&lastSide[t1k]==='left')[t1,t2]=[t2,t1];else if(t2k===lt2k&&lastSide[t2k]==='right')[t1,t2]=[t2,t1]}lastSide[teamKey(t1)]='left';lastSide[teamKey(t2)]='right';orderedMatches.push({round:'Girone',team1:t1,team2:t2,info:`Partita a ${goalsToWin} goal`,winner:0,goalsToWin,score1:0,score2:0});used.add(`${teamKey(bestMatch[0])}-${teamKey(bestMatch[1])}`)}}return orderedMatches}return matches}
@@ -187,9 +454,9 @@
     function createSequentialTournaments(n=4){const selected=Array.from(document.querySelectorAll('.player-select:checked')).map(cb=>cb.value);if(selected.length<4){alert('Seleziona almeno 4 giocatori!');return}const isOdd=(selected.length%2!==0);const base=isOdd?selected.concat('Pippo'):selected.slice();const tournaments=[];const historyPairs=new Set();let lastPartner=null;for(let t=0;t<n;t++){let teams=bestPairing(base,historyPairs,t);let pippoPartner=null;if(isOdd){let pippoIdx=teams.findIndex(team=>team.includes('Pippo'));if(pippoIdx===-1){if(teams.length===0)teams.push(['Pippo']);else teams[0][0]='Pippo';pippoIdx=0}pippoPartner=teams[pippoIdx].find(p=>p!=='Pippo');if(lastPartner&&pippoPartner===lastPartner){let changed=false;for(let j=0;j<teams.length&&!changed;j++){if(j===pippoIdx)continue;for(let m=0;m<teams[j].length&&!changed;m++){const candidate=teams[j][m];if(candidate!==lastPartner){const ex=pippoPartner;teams[j][m]=ex;teams[pippoIdx][teams[pippoIdx].indexOf(ex)]=candidate;pippoPartner=candidate;changed=true}}}}lastPartner=pippoPartner}for(const[a,b]of teams)historyPairs.add(pairKey(a,b));const matches=buildMatches(teams);matches.forEach(mm=>mm.pippoSub=null);const pippoQueue=isOdd?shuffle(selected.filter(p=>p!==pippoPartner)):[];const standings=initStandings(teams);tournaments.push({teams,matches,hasPippo:isOdd,pippoPartner,standings,pippoQueue,_pippoQueueState:null,colorPreference:{}})}window.__tournaments=tournaments;window.__selectedPlayers=selected;renderSequentialTournaments(tournaments);const container=document.querySelector('.container');const playersSection=document.getElementById('playersSection');if(container&&playersSection)container.appendChild(playersSection)}
 
     function initStandings(teams){const table={};teams.forEach(team=>{table[teamKey(team)]={team:team.slice(),W:0,L:0,GF:0,GS:0,GD:0}});return table}
-    function resetTournament(ti){const t=window.__tournaments[ti];t.matches.forEach(m=>m.winner=0);t.standings=initStandings(t.teams);renderSequentialTournaments(window.__tournaments)}
+    function resetTournament(ti){const t=window.__tournaments[ti];t.matches.forEach(m=>{m.winner=0;m.score1=0;m.score2=0;if(m.gameResults)m.gameResults=[]});t.standings=initStandings(t.teams);renderSequentialTournaments(window.__tournaments)}
 
-    function recordResult(ti,mi,winnerSide){const t=window.__tournaments[ti];const m=t.matches[mi];if(!m)return;m.winner=winnerSide;t.standings=initStandings(t.teams);t.matches.forEach(mm=>{if(mm.winner===1||mm.winner===2){const A=teamKey(mm.team1),B=teamKey(mm.team2);if(!(A in t.standings))t.standings[A]={team:mm.team1.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(!(B in t.standings))t.standings[B]={team:mm.team2.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(mm.winner===1){t.standings[A].W++;t.standings[B].L++}if(mm.winner===2){t.standings[B].W++;t.standings[A].L++}if(mm.score1!==undefined&&mm.score2!==undefined){t.standings[A].GF+=mm.score1;t.standings[A].GS+=mm.score2;t.standings[B].GF+=mm.score2;t.standings[B].GS+=mm.score1}t.standings[A].GD=t.standings[A].GF-t.standings[A].GS;t.standings[B].GD=t.standings[B].GF-t.standings[B].GS}});if(t.teams.length===4)updateSemifinalPlaceholders(t);if(t.teams.length===3){if(mi===0&&(m.winner===1||m.winner===2)){const loser=(m.winner===1)?teamKey(m.team2):teamKey(m.team1);const involvesLoser=(mm)=>teamKey(mm.team1)===loser||teamKey(mm.team2)===loser;if(!involvesLoser(t.matches[1])&&involvesLoser(t.matches[2])){const tmp=t.matches[1];t.matches[1]=t.matches[2];t.matches[2]=tmp}}}renderSequentialTournaments(window.__tournaments)}
+    function recordResult(ti,mi,winnerSide){const t=window.__tournaments[ti];const m=t.matches[mi];if(!m)return;m.winner=winnerSide;t.standings=initStandings(t.teams);t.matches.forEach(mm=>{if(mm.winner===1||mm.winner===2){const A=teamKey(mm.team1),B=teamKey(mm.team2);if(!(A in t.standings))t.standings[A]={team:mm.team1.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(!(B in t.standings))t.standings[B]={team:mm.team2.slice(),W:0,L:0,GF:0,GS:0,GD:0};if(mm.round==='Meglio dei 3'&&mm.gameResults&&mm.gameResults.length>0){mm.gameResults.forEach(gr=>{if(gr.winner===1){t.standings[A].W++;t.standings[B].L++}else{t.standings[B].W++;t.standings[A].L++}t.standings[A].GF+=gr.score1;t.standings[A].GS+=gr.score2;t.standings[B].GF+=gr.score2;t.standings[B].GS+=gr.score1})}else{if(mm.winner===1){t.standings[A].W++;t.standings[B].L++}if(mm.winner===2){t.standings[B].W++;t.standings[A].L++}if(mm.score1!==undefined&&mm.score2!==undefined){t.standings[A].GF+=mm.score1;t.standings[A].GS+=mm.score2;t.standings[B].GF+=mm.score2;t.standings[B].GS+=mm.score1}}t.standings[A].GD=t.standings[A].GF-t.standings[A].GS;t.standings[B].GD=t.standings[B].GF-t.standings[B].GS}});if(t.teams.length===4)updateSemifinalPlaceholders(t);if(t.teams.length===3){if(mi===0&&(m.winner===1||m.winner===2)){const loser=(m.winner===1)?teamKey(m.team2):teamKey(m.team1);const involvesLoser=(mm)=>teamKey(mm.team1)===loser||teamKey(mm.team2)===loser;if(!involvesLoser(t.matches[1])&&involvesLoser(t.matches[2])){const tmp=t.matches[1];t.matches[1]=t.matches[2];t.matches[2]=tmp}}}renderSequentialTournaments(window.__tournaments)}
 
     function updateSemifinalPlaceholders(t){const sf1=t.matches.find(m=>m.round==='Semifinale 1');const sf2=t.matches.find(m=>m.round==='Semifinale 2');const f34=t.matches.find(m=>m.round==='Finale 3°/4° posto');const f12=t.matches.find(m=>m.round==='FINALE 1°/2° posto');if(sf1&&sf1.winner!==0){const w1=sf1.winner===1?sf1.team1:sf1.team2,l1=sf1.winner===1?sf1.team2:sf1.team1;if(f12&&f12.team1[0]==='Vincente SF1')f12.team1=w1.slice();if(f12&&f12.team2[0]==='Vincente SF1')f12.team2=w1.slice();if(f34&&f34.team1[0]==='Perdente SF1')f34.team1=l1.slice();if(f34&&f34.team2[0]==='Perdente SF1')f34.team2=l1.slice()}if(sf2&&sf2.winner!==0){const w2=sf2.winner===1?sf2.team1:sf2.team2,l2=sf2.winner===1?sf2.team2:sf2.team1;if(f12&&f12.team1[0]==='Vincente SF2')f12.team1=w2.slice();if(f12&&f12.team2[0]==='Vincente SF2')f12.team2=w2.slice();if(f34&&f34.team1[0]==='Perdente SF2')f34.team1=l2.slice();if(f34&&f34.team2[0]==='Perdente SF2')f34.team2=l2.slice()}}
 
@@ -199,7 +466,7 @@
 
     function updateFullscreenUI(ti,mi,team1,team2){const t=window.__tournaments[ti];const m=t.matches[mi];const state=currentMatchState.bestOf3State;let matchInfo=`Torneo ${ti+1} - ${m.round} - Partita ${mi+1}`;if(state)matchInfo=`Torneo ${ti+1} - ${m.round} - Game ${state.currentGame}/3 (${state.gamesWon1}-${state.gamesWon2})`;const shouldSwap=(state&&state.swapSides)||currentMatchState.swappedColors;if(shouldSwap)[team1,team2]=[team2,team1];document.getElementById('fsMatchInfo').textContent=matchInfo;document.getElementById('fsTeam1Names').innerHTML=team1.join('<br>');document.getElementById('fsTeam2Names').innerHTML=team2.join('<br>');document.getElementById('fsScore1').textContent='0';document.getElementById('fsScore2').textContent='0';document.getElementById('fsConfirmArea').style.display='none';const b1=document.getElementById('fsTeam1'),b2=document.getElementById('fsTeam2');b1.classList.remove('winner','red','blue');b2.classList.remove('winner','red','blue');b1.classList.add('red');b2.classList.add('blue');updateFullscreenStandings(ti,mi)}
 
-    function updateFullscreenStandings(ti,mi){const t=window.__tournaments[ti];const m=t.matches[mi];const tbody=document.getElementById('fsStandingsBody');const ct1k=teamKey(m.team1),ct2k=teamKey(m.team2);const temp={};Object.keys(t.standings).forEach(key=>{temp[key]={...t.standings[key]}});if(currentMatchState.score1>0||currentMatchState.score2>0){const{score1,score2,swappedColors}=currentMatchState;let r1,r2;if(swappedColors){r1=score2;r2=score1}else{r1=score1;r2=score2}if(temp[ct1k]){temp[ct1k].GF+=r1;temp[ct1k].GS+=r2;temp[ct1k].GD=temp[ct1k].GF-temp[ct1k].GS}if(temp[ct2k]){temp[ct2k].GF+=r2;temp[ct2k].GS+=r1;temp[ct2k].GD=temp[ct2k].GF-temp[ct2k].GS}if(r1>r2&&temp[ct1k]){temp[ct1k].W++;if(temp[ct2k])temp[ct2k].L++}else if(r2>r1&&temp[ct2k]){temp[ct2k].W++;if(temp[ct1k])temp[ct1k].L++}}const sorted=Object.values(temp).sort((a,b)=>(b.W-a.W)||(b.GD-a.GD)||headToHeadCompare(a,b,t.matches)||(a.L-b.L)||teamKey(a.team).localeCompare(teamKey(b.team)));let html='';sorted.forEach((row,idx)=>{const tKey=teamKey(row.team);const isCur=(tKey===ct1k||tKey===ct2k);const isLead=idx===0&&t.matches.every(mm=>mm.winner!==0);let cls='';if(isLead)cls='highlight-winner';else if(isCur)cls='current-match';html+=`<tr class="${cls}"><td>${idx+1}${isLead?' 🏆':''}</td><td style="font-weight:${isCur?'bold':'normal'};">${tKey}${isCur?' 🎯':''}</td><td>${row.W}</td><td>${row.L}</td><td>${row.GF}</td><td>${row.GS}</td><td style="font-weight:bold;">${row.GD>0?'+':''}${row.GD}</td></tr>`});tbody.innerHTML=html}
+    function updateFullscreenStandings(ti,mi){const t=window.__tournaments[ti];const m=t.matches[mi];const tbody=document.getElementById('fsStandingsBody');const ct1k=teamKey(m.team1),ct2k=teamKey(m.team2);const temp={};Object.keys(t.standings).forEach(key=>{temp[key]={...t.standings[key]}});if(m.round==='Meglio dei 3'&&m.gameResults&&m.gameResults.length>0&&m.winner===0){m.gameResults.forEach(gr=>{if(gr.winner===1){if(temp[ct1k])temp[ct1k].W++;if(temp[ct2k])temp[ct2k].L++}else{if(temp[ct2k])temp[ct2k].W++;if(temp[ct1k])temp[ct1k].L++}if(temp[ct1k]){temp[ct1k].GF+=gr.score1;temp[ct1k].GS+=gr.score2;temp[ct1k].GD=temp[ct1k].GF-temp[ct1k].GS}if(temp[ct2k]){temp[ct2k].GF+=gr.score2;temp[ct2k].GS+=gr.score1;temp[ct2k].GD=temp[ct2k].GF-temp[ct2k].GS}})}if(currentMatchState.score1>0||currentMatchState.score2>0){const{score1,score2,swappedColors,bestOf3State}=currentMatchState;let r1,r2;const effectiveSwap=Boolean(swappedColors)!==Boolean(bestOf3State&&bestOf3State.swapSides);if(effectiveSwap){r1=score2;r2=score1}else{r1=score1;r2=score2}if(temp[ct1k]){temp[ct1k].GF+=r1;temp[ct1k].GS+=r2;temp[ct1k].GD=temp[ct1k].GF-temp[ct1k].GS}if(temp[ct2k]){temp[ct2k].GF+=r2;temp[ct2k].GS+=r1;temp[ct2k].GD=temp[ct2k].GF-temp[ct2k].GS}if(r1>r2&&temp[ct1k]){temp[ct1k].W++;if(temp[ct2k])temp[ct2k].L++}else if(r2>r1&&temp[ct2k]){temp[ct2k].W++;if(temp[ct1k])temp[ct1k].L++}}const sorted=Object.values(temp).sort((a,b)=>(b.W-a.W)||(b.GD-a.GD)||headToHeadCompare(a,b,t.matches)||(a.L-b.L)||teamKey(a.team).localeCompare(teamKey(b.team)));let html='';sorted.forEach((row,idx)=>{const tKey=teamKey(row.team);const isCur=(tKey===ct1k||tKey===ct2k);const isLead=idx===0&&t.matches.every(mm=>mm.winner!==0);let cls='';if(isLead)cls='highlight-winner';else if(isCur)cls='current-match';html+=`<tr class="${cls}"><td>${idx+1}${isLead?' 🏆':''}</td><td style="font-weight:${isCur?'bold':'normal'};">${tKey}${isCur?' 🎯':''}</td><td>${row.W}</td><td>${row.L}</td><td>${row.GF}</td><td>${row.GS}</td><td style="font-weight:bold;">${row.GD>0?'+':''}${row.GD}</td></tr>`});tbody.innerHTML=html}
 
     function closeFullscreenMatch(){document.getElementById('matchFullscreen').classList.remove('active');currentMatchState={ti:-1,mi:-1,score1:0,score2:0,goalsToWin:5,bestOf3State:null,swappedColors:false}}
     function swapTeamColors(){currentMatchState.swappedColors=!currentMatchState.swappedColors;const n1=document.getElementById('fsTeam1Names').innerHTML,n2=document.getElementById('fsTeam2Names').innerHTML;document.getElementById('fsTeam1Names').innerHTML=n2;document.getElementById('fsTeam2Names').innerHTML=n1;const s1=currentMatchState.score1,s2=currentMatchState.score2;currentMatchState.score1=s2;currentMatchState.score2=s1;document.getElementById('fsScore1').textContent=currentMatchState.score1;document.getElementById('fsScore2').textContent=currentMatchState.score2;checkWinner()}
@@ -208,7 +475,7 @@
     function checkWinner(){const{score1,score2,goalsToWin}=currentMatchState;if(score1>=goalsToWin||score2>=goalsToWin){document.getElementById('fsConfirmArea').style.display='flex';if(score1>=goalsToWin){document.getElementById('fsTeam1').classList.add('winner');document.getElementById('fsTeam2').classList.remove('winner')}else{document.getElementById('fsTeam2').classList.add('winner');document.getElementById('fsTeam1').classList.remove('winner')}}else{document.getElementById('fsConfirmArea').style.display='none';document.getElementById('fsTeam1').classList.remove('winner');document.getElementById('fsTeam2').classList.remove('winner')}}
     function cancelWin(){document.getElementById('fsConfirmArea').style.display='none';document.getElementById('fsTeam1').classList.remove('winner');document.getElementById('fsTeam2').classList.remove('winner')}
 
-    function confirmMatch(){const{ti,mi,score1,score2,goalsToWin,bestOf3State,swappedColors}=currentMatchState;if(score1<goalsToWin&&score2<goalsToWin){alert('Nessuna squadra ha raggiunto i goal necessari!');return}const t=window.__tournaments[ti];const m=t.matches[mi];let finalScore1=score1,finalScore2=score2;if(swappedColors&&!bestOf3State){finalScore1=score2;finalScore2=score1}let gameWinner1=score1>=goalsToWin;if(bestOf3State&&bestOf3State.swapSides)gameWinner1=!gameWinner1;if(bestOf3State){if(!m.gameResults)m.gameResults=[];m.gameResults.push({game:bestOf3State.currentGame,score1:gameWinner1?(score1>=goalsToWin?score1:score2):(score1>=goalsToWin?score2:score1),score2:gameWinner1?(score1>=goalsToWin?score2:score1):(score1>=goalsToWin?score1:score2),winner:gameWinner1?1:2});if(gameWinner1)bestOf3State.gamesWon1++;else bestOf3State.gamesWon2++;if(bestOf3State.gamesWon1>=2||bestOf3State.gamesWon2>=2){const fw=bestOf3State.gamesWon1>=2?1:2;let ts1=0,ts2=0;m.gameResults.forEach(gr=>{ts1+=gr.score1;ts2+=gr.score2});m.score1=ts1;m.score2=ts2;recordResult(ti,mi,fw);showBestOf3Victory(ti,mi,fw)}else{bestOf3State.currentGame++;bestOf3State.swapSides=!bestOf3State.swapSides;currentMatchState.score1=0;currentMatchState.score2=0;let team1=m.team1.slice(),team2=m.team2.slice();if(t.hasPippo&&(team1.includes('Pippo')||team2.includes('Pippo'))){let ps=m.pippoSub;team1=team1.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p);team2=team2.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p)}updateFullscreenUI(ti,mi,team1,team2)}}else{let winner;if(swappedColors)winner=score1>=goalsToWin?2:1;else winner=score1>=goalsToWin?1:2;if(!t.lastMatchColors)t.lastMatchColors={};const t1k=teamKey(m.team1),t2k=teamKey(m.team2);if(swappedColors){t.lastMatchColors[t1k]='blue';t.lastMatchColors[t2k]='red'}else{t.lastMatchColors[t1k]='red';t.lastMatchColors[t2k]='blue'}m.score1=finalScore1;m.score2=finalScore2;recordResult(ti,mi,winner);const allPlayed=t.matches.every(mm=>mm.winner!==0);if(allPlayed){if(t.teams.length>=3){const winners=getWinnersList(t);if(winners.length>0){showTournamentVictory(ti,winners[0]);return}}closeFullscreenMatch()}else{closeFullscreenMatch();const nextUnplayed=t.matches.findIndex((mm,i)=>i>mi&&mm.winner===0);const nmi=nextUnplayed!==-1?nextUnplayed:t.matches.findIndex(mm=>mm.winner===0);if(nmi!==-1)setTimeout(()=>openFullscreenMatch(ti,nmi),500)}}}
+    function confirmMatch(){const{ti,mi,score1,score2,goalsToWin,bestOf3State,swappedColors}=currentMatchState;if(score1<goalsToWin&&score2<goalsToWin){alert('Nessuna squadra ha raggiunto i goal necessari!');return}const t=window.__tournaments[ti];const m=t.matches[mi];let finalScore1=score1,finalScore2=score2;if(swappedColors&&!bestOf3State){finalScore1=score2;finalScore2=score1}if(bestOf3State){if(!m.gameResults)m.gameResults=[];const effectiveSwap=Boolean(bestOf3State.swapSides)!==Boolean(swappedColors);const realScore1=effectiveSwap?score2:score1;const realScore2=effectiveSwap?score1:score2;const gameWinner=realScore1>=goalsToWin?1:2;m.gameResults.push({game:bestOf3State.currentGame,score1:realScore1,score2:realScore2,winner:gameWinner});updateGlobalPlayerStats(ti,mi,gameWinner);if(gameWinner===1)bestOf3State.gamesWon1++;else bestOf3State.gamesWon2++;if(bestOf3State.gamesWon1>=2||bestOf3State.gamesWon2>=2){const fw=bestOf3State.gamesWon1>=2?1:2;let ts1=0,ts2=0;m.gameResults.forEach(gr=>{ts1+=gr.score1;ts2+=gr.score2});m.score1=ts1;m.score2=ts2;recordResult(ti,mi,fw);showBestOf3Victory(ti,mi,fw)}else{bestOf3State.currentGame++;bestOf3State.swapSides=!bestOf3State.swapSides;currentMatchState.score1=0;currentMatchState.score2=0;currentMatchState.swappedColors=false;let team1=m.team1.slice(),team2=m.team2.slice();if(t.hasPippo&&(team1.includes('Pippo')||team2.includes('Pippo'))){let ps=m.pippoSub;team1=team1.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p);team2=team2.map(p=>p==='Pippo'?`Pippo (${ps||'—'})`:p)}updateFullscreenUI(ti,mi,team1,team2)}}else{let winner;if(swappedColors)winner=score1>=goalsToWin?2:1;else winner=score1>=goalsToWin?1:2;if(!t.lastMatchColors)t.lastMatchColors={};const t1k=teamKey(m.team1),t2k=teamKey(m.team2);if(swappedColors){t.lastMatchColors[t1k]='blue';t.lastMatchColors[t2k]='red'}else{t.lastMatchColors[t1k]='red';t.lastMatchColors[t2k]='blue'}m.score1=finalScore1;m.score2=finalScore2;recordResult(ti,mi,winner);updateGlobalPlayerStats(ti,mi,winner);const allPlayed=t.matches.every(mm=>mm.winner!==0);if(allPlayed){if(t.teams.length>=3){const winners=getWinnersList(t);if(winners.length>0){showTournamentVictory(ti,winners[0]);return}}closeFullscreenMatch()}else{closeFullscreenMatch();const nextUnplayed=t.matches.findIndex((mm,i)=>i>mi&&mm.winner===0);const nmi=nextUnplayed!==-1?nextUnplayed:t.matches.findIndex(mm=>mm.winner===0);if(nmi!==-1)setTimeout(()=>openFullscreenMatch(ti,nmi),500)}}}
 
     function showTournamentVictory(ti,winnerName){document.querySelector('.fs-playing-area').style.display='none';document.getElementById('fsStandingsArea').style.display='none';document.getElementById('fsConfirmArea').style.display='none';const v=document.createElement('div');v.id='victoryMessage';v.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;';v.innerHTML=`<div style="font-size:3em;margin-bottom:20px;">🏆</div><div style="font-size:2em;font-weight:bold;color:white;margin-bottom:30px;">Vincitori del Torneo!</div><div style="font-size:1.8em;font-weight:bold;color:#ffd700;margin-bottom:40px;">${winnerName}</div><button class="fs-confirm-btn" onclick="closeTournamentVictory()">✓ Chiudi e Torna ai Tornei</button>`;document.getElementById('matchFullscreen').appendChild(v)}
     function closeTournamentVictory(){const v=document.getElementById('victoryMessage');if(v)v.remove();document.querySelector('.fs-playing-area').style.display='flex';document.getElementById('fsStandingsArea').style.display='flex';closeFullscreenMatch()}

@@ -2,13 +2,14 @@
 
 A web application to organize and manage foosball tournaments with a touch-optimized interface for mobile devices.
 
-![Version](https://img.shields.io/badge/version-5.0-blue)
+![Version](https://img.shields.io/badge/version-6.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎯 Features
 
-- **Automatic tournament generation**: Create 1 or 4 sequential tournaments with intelligent team rotation
-- **Fullscreen touch interface**: Landscape-optimized mode for scoring goals with direct taps
+- **Automatic tournament generation**: Create 4 sequential tournaments with intelligent team rotation
+- **Manual tournament generation**: Create 1 tournament with manual team setup
+- **Fullscreen touch interface**: Portrait-optimized mode for scoring goals with direct taps
 - **Live standings during match**: Real-time tournament standings updated with current match score in the bottom half of the screen
 - **Red vs Blue color system**: Visual team identification with automatic side switching
 - **Goal difference tracking**: Complete standings with goals for, goals against, and goal difference
@@ -19,8 +20,9 @@ A web application to organize and manage foosball tournaments with a touch-optim
 - **Tournament victory screen**: Celebratory screen showing the tournament winner
 - **Data persistence**: Automatic player data saving in the browser
 - **Best of 3 support**: Special mode for 2-team tournaments with game-by-game tracking
+- **Global standings**: Global standings using the percentages of won matches (e.g. player of the month)
 
-## 📱 Screenshots
+## 📱 Screenshots [TBD]
 
 ### Main View
 Player management and tournament generation with an intuitive interface showing complete standings with goal statistics.
@@ -33,7 +35,7 @@ Two large color-coded squares (red vs blue) to score goals with a tap - perfect 
 1. **Open the file**: Simply open `index.html` in your browser
 2. **Add players**: Enter player names (or use the pre-loaded ones)
 3. **Select participants**: Choose at least 4 players for the tournament
-4. **Generate tournaments**: Click on "Generate 4 Tournaments" or "Generate 1 Tournament"
+4. **Generate tournaments**: Click on "Generate Random Tournaments" or "Generate Manual Tournament"
 5. **Play**: Tap on a match to open fullscreen mode
 6. **Score goals**: Tap on a team's colored square to add a goal
 7. **Swap colors** (optional): Use "🔄 Inverti Colori" button to switch team sides
@@ -66,12 +68,6 @@ Two large color-coded squares (red vs blue) to score goals with a tap - perfect 
 - 📊 Real-time calculation includes current match score
 - 🏆 Tournament winner highlighted when all matches complete
 - Automatic position updates as goals are scored
-
-### Recommended:
-- 📱 Use your phone in **landscape mode**
-- 🔊 Volume up for tournament atmosphere
-- 👥 Teams stay on their chosen color throughout the tournament
-- 📊 Monitor standings live as you play
 
 ## 🏆 Tournament Formats
 
